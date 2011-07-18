@@ -3,10 +3,8 @@ package com.lasalletech.umdf.decoder;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 public class TestUtil {
@@ -24,6 +22,8 @@ public class TestUtil {
 			byte[] msgData=cur.getBytes();
 			s.writeShort(msgData.length); // msg length
 			s.write(msgData); // msg bytes
+			
+			//System.out.printf("%d,%d,%d,%d,%s\n",i,1,1,msgData.length,new String(msgData));
 			
 			out.add(tmp.toByteArray());
 			
@@ -43,17 +43,18 @@ public class TestUtil {
 		DataOutputStream s=new DataOutputStream(tmp);
 		
 		int seqnum=0;
-		for(byte[] inData:generateUmdf(inMsgs)) {
+		for(String cur:inMsgs) {
+			byte[] inData=cur.getBytes();
 			// integer division, always rounding up
 			int chunks=(inData.length/chunkSize)+((inData.length%chunkSize)>0?1:0);
-			for(int i=0;i<inData.length;i+=chunkSize) {
+			for(int i=0;i<chunks;++i) {
 				s.writeInt(seqnum); // sequence number
 				s.writeShort(chunks); // noChunks
-				s.writeShort((short)(i+1)); // curChunk
+				s.writeShort(i+1); // curChunk
 				
-				int len=inData.length-i<chunkSize?(inData.length-i):chunkSize;
+				int len=inData.length-(i*chunkSize)<chunkSize?(inData.length-(i*chunkSize)):chunkSize;
 				s.writeShort(len); // msg length
-				s.write(inData, i, len); // msg data
+				s.write(inData, i*chunkSize, len); // msg data
 				
 				out.add(tmp.toByteArray());
 				
