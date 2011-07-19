@@ -22,9 +22,11 @@ public class Console {
 			
 			if(cmd.equals("quit") || cmd.equals("exit")) {
 				break;
-			} else if(cmd.equals("listall")) {
+			} else if(cmd.equals("count")) {
+				System.out.println("There are "+mgr.getNumInstruments()+" instruments in total");
+			} else if(cmd.equals("all")) {
 				printList(mgr.getAllInstruments());
-			} else if(cmd.equals("listtraded")) {
+			} else if(cmd.equals("traded")) {
 				Collection<Instrument> all=mgr.getAllInstruments();
 				Iterator<Instrument> iter=all.iterator();
 				while(iter.hasNext()) {
@@ -34,18 +36,22 @@ public class Console {
 					}
 				}
 				printList(all);
-			} else if(cmd.equals("book")) {
-				System.out.print("Instrument id: ");
-				String id=con.readLine();
-				System.out.print("\nSource: ");
-				String src=con.readLine();
-				
-				Instrument inst=mgr.getInstrument(id, src);
-				if(inst==null) {
-					System.out.println("\nUnknown instrument");
-				} else {
-					printBook(inst.getBook());
+			} else if(cmd.substring(0, 4).equals("book")) {
+				// get instrument id and source
+				String[] args=cmd.split("\\s");
+				if(args.length==3) {
+					String id=args[1];
+					String src=args[2];
+					
+					Instrument inst=mgr.getInstrument(id, src);
+					if(inst==null) {
+						System.out.println("\nUnknown instrument");
+					} else {
+						printBook(inst.getBook());
+					}
 				}
+			} else {
+				System.out.println("\nUnknown command");
 			}
 		}
 	}
@@ -97,13 +103,13 @@ public class Console {
 				if(!offers.isEmpty() && !bids.isEmpty()) {
 					OrderEntry bid=bids.remove(0);
 					OrderEntry offer=offers.remove(0);
-					System.out.printf("%f\t%f\t\t%f\t%f\n",bid.getPrice(),bid.getQty(),offer.getPrice(),offer.getQty());
+					System.out.printf("%10.3f\t%10.3f\t\t%10.3f\t%10.3f\n",bid.getPrice(),bid.getQty(),offer.getPrice(),offer.getQty());
 				} else if(!offers.isEmpty()) {
 					OrderEntry offer=offers.remove(0);
-					System.out.printf("\t\t\t%f\t%f\n",offer.getPrice(),offer.getQty());
+					System.out.printf("\t\t\t%10.3f\t%10.3f\n",offer.getPrice(),offer.getQty());
 				} else {
 					OrderEntry bid=bids.remove(0);
-					System.out.printf("%f\t%f\n",bid.getPrice(),bid.getQty());
+					System.out.printf("%10.3f\t%10.3f\n",bid.getPrice(),bid.getQty());
 				}
 			}
 		}

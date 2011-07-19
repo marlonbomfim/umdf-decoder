@@ -53,7 +53,7 @@ public class UmdfOrderBook implements FastProcessor, OrderBook {
 	
 	public synchronized void processIncremental(GroupValue info) 
 			throws UnsupportedMessageType,FieldNotFound,IncorrectTagValue {
-		if(lastSnapshotSeq<info.getInt(Fields.RPTSEQ)) {
+		if(info.isDefined(Fields.RPTSEQ) && lastSnapshotSeq<info.getInt(Fields.RPTSEQ)) {
 			lastSnapshotSeq=info.getInt(Fields.RPTSEQ);
 			
 			String op=info.getString(Fields.MDUPDATEACTION);

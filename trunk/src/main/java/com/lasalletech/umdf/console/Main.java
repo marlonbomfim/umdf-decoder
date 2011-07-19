@@ -58,6 +58,12 @@ public class Main {
 		snapshotUdp.listen(new MulticastPacketSource("233.111.180.112",30050));
 		snapshotAggregator.start(snapshotUdp, new EmptyReplayStream(), ctx, instruments);
 		
+		// market incremental feed
+		UmdfFastMessageAggregator incrementalAggregator=new UmdfFastMessageAggregator();
+		UmdfUdpQueue incrUdp=new UmdfUdpQueue();
+		incrUdp.listen(new MulticastPacketSource("233.111.180.113",20050));
+		incrementalAggregator.start(incrUdp, new EmptyReplayStream(), ctx, instruments);
+		
 		Console con=new Console();
 		con.run(instruments);
 	}
