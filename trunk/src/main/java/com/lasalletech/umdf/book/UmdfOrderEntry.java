@@ -62,7 +62,6 @@ public class UmdfOrderEntry implements Comparable<UmdfOrderEntry>, OrderEntry {
 	private double price;
 	
 	private String id;
-	private int rptseq;
 	
 	private Calendar timestamp;
 	

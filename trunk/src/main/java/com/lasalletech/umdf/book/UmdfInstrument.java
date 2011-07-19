@@ -9,6 +9,7 @@ import quickfix.IncorrectTagValue;
 import quickfix.UnsupportedMessageType;
 
 import com.lasalletech.umdf.decoder.FastProcessor;
+import com.lasalletech.umdf.decoder.Messages;
 
 public class UmdfInstrument implements Instrument, FastProcessor {
 	
@@ -61,11 +62,6 @@ public class UmdfInstrument implements Instrument, FastProcessor {
 	@Override
 	public void process(GroupValue msg) throws UnsupportedMessageType,
 			FieldNotFound, IncorrectTagValue {
-		/*if(msg.isDefined(Fields.SECURITYALTID)) {
-			for(GroupValue grp : msg.getSequence(Fields.SECURITYALTID).getValues()) {
-				//alternates.add();
-			}
-		}*/
 	}
 
 	private String id;
