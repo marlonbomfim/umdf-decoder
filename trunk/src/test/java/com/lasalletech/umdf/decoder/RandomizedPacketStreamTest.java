@@ -1,7 +1,6 @@
 package com.lasalletech.umdf.decoder;
 
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Vector;
 import java.util.concurrent.TimeUnit;
 
@@ -11,7 +10,7 @@ public class RandomizedPacketStreamTest extends TestCase {
 	private static final int NUM_PACKETS=10;
 	public void test() throws Exception {
 		Vector<String> src=TestUtil.generateMessages(NUM_PACKETS);
-		Queue<String> out=new LinkedList<String>();
+		LinkedList<String> out=new LinkedList<String>();
 		
 		UmdfUdpQueue q=new UmdfUdpQueue();
 		q.listen(new RandomizedPacketSource(src));
@@ -24,10 +23,9 @@ public class RandomizedPacketStreamTest extends TestCase {
 		
 		q.stop();
 		
-		for(int i=0;i<NUM_PACKETS;++i) {
-			String s=out.poll();
-			assertTrue(s!=null);
-			assertTrue(s.equals(src.get(i)));
+		// the output list will be out of order
+		for(String cur:src) {
+			assertTrue(out.contains(cur));
 		}
 	}
 }
