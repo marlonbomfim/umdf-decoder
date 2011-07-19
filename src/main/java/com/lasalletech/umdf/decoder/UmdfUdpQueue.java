@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
@@ -87,12 +86,14 @@ public class UmdfUdpQueue {
 		if(incoming.containsKey(seqnum)) {
 			UmdfMessage msg=incoming.get(seqnum);
 			if(msg instanceof ChunkedUmdfMessage && !msg.isComplete()) {
+				//System.out.println("Appended "+seqnum);
 				((ChunkedUmdfMessage)(msg)).add(packet);
 			} else {
 				// the packet lies!
 				throw new IOException();
 			}
 		} else {
+			//System.out.println("Added "+seqnum);
 			incoming.put(seqnum,UmdfMessages.umdfMessage(packet));
 		}
 	}
@@ -104,6 +105,7 @@ public class UmdfUdpQueue {
 			Long cur=i.next();
 			UmdfMessage msg=incoming.get(cur);
 			if(msg.isComplete()) {
+				//System.out.println("Completed "+new String(msg.getData()));
 				synchronized(outgoing) {
 					outgoing.add(msg);
 				}
