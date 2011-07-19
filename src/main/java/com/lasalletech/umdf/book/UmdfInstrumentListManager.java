@@ -80,6 +80,8 @@ public class UmdfInstrumentListManager implements InstrumentManager,FastProcesso
 				
 				inst.getUmdfBook().processIncremental(grp);
 			}
+		} else if(type.equals(Messages.NEWS)) {
+			//TODO: handle news
 		} else {
 			System.out.println("Unsupported message type "+type);
 			throw new UnsupportedMessageType();

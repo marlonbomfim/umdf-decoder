@@ -45,7 +45,7 @@ public class Console {
 					
 					Instrument inst=mgr.getInstrument(id, src);
 					if(inst==null) {
-						System.out.println("\nUnknown instrument");
+						System.out.println("\nUnknown instrument, give ID and Source");
 					} else {
 						printBook(inst.getBook());
 					}
@@ -103,13 +103,13 @@ public class Console {
 				if(!offers.isEmpty() && !bids.isEmpty()) {
 					OrderEntry bid=bids.remove(0);
 					OrderEntry offer=offers.remove(0);
-					System.out.printf("%10.3f\t%10.3f\t\t%10.3f\t%10.3f\n",bid.getPrice(),bid.getQty(),offer.getPrice(),offer.getQty());
+					System.out.printf("%.3f\t%.3f\t\t%.3f\t%.3f\n",bid.getPrice(),bid.getQty(),offer.getPrice(),offer.getQty());
 				} else if(!offers.isEmpty()) {
 					OrderEntry offer=offers.remove(0);
-					System.out.printf("\t\t\t%10.3f\t%10.3f\n",offer.getPrice(),offer.getQty());
+					System.out.printf("\t\t\t%.3f\t%.3f\n",offer.getPrice(),offer.getQty());
 				} else {
 					OrderEntry bid=bids.remove(0);
-					System.out.printf("%10.3f\t%10.3f\n",bid.getPrice(),bid.getQty());
+					System.out.printf("%.3f\t%.3f\n",bid.getPrice(),bid.getQty());
 				}
 			}
 		}
