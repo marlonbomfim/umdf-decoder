@@ -81,6 +81,7 @@ public class UmdfInstrumentListManager implements InstrumentManager,FastProcesso
 				inst.getUmdfBook().processIncremental(grp);
 			}
 		} else {
+			System.out.println("Unsupported message type "+type);
 			throw new UnsupportedMessageType();
 		}
 	}
@@ -108,5 +109,10 @@ public class UmdfInstrumentListManager implements InstrumentManager,FastProcesso
 		}
 
 		return null;
+	}
+
+	@Override
+	public int getNumInstruments() {
+		return instruments.size();
 	}
 }

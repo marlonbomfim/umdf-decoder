@@ -6,4 +6,6 @@ public interface InstrumentManager {
 	public Instrument getInstrument(String id,String src);
 	
 	public Collection<Instrument> getAllInstruments();
+	
+	public int getNumInstruments();
 }
