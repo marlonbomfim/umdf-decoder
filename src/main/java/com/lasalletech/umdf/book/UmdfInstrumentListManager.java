@@ -70,6 +70,16 @@ public class UmdfInstrumentListManager implements InstrumentManager,FastProcesso
 			}
 			
 			inst.getUmdfBook().process(msg);
+		} else if(type.equals(Messages.MARKETDATAINCREMENTALREFRESH)) {
+			for(GroupValue grp:msg.getSequence(Fields.MDENTRIES).getValues()) {
+				UmdfInstrument inst=find(grp);
+				if(inst==null) {
+					// skip this update, wait for when we know what the instrument is
+					return;
+				}
+				
+				inst.getUmdfBook().processIncremental(grp);
+			}
 		} else {
 			throw new UnsupportedMessageType();
 		}
