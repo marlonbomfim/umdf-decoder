@@ -1,4 +1,4 @@
-package com.lasalletech.umdf.decoder;
+package com.lasalletech.market_data.fast;
 
 public class Messages {
 	public static final String SEQUENCERESET="4";

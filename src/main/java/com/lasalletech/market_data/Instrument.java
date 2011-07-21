@@ -1,4 +1,4 @@
-package com.lasalletech.umdf.book;
+package com.lasalletech.market_data;
 
 public interface Instrument {
 	public String getID();
