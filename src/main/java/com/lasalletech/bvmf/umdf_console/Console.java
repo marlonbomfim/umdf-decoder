@@ -37,7 +37,7 @@ public class Console {
 					}
 				}
 				printList(all);
-			} else if(cmd.substring(0,7).equals("booksym")) {
+			} else if(cmd.startsWith("booksym")) {
 				String[] args=cmd.split("\\s");
 				if(args.length==2) {
 					String sym=args[1];
@@ -50,7 +50,7 @@ public class Console {
 				} else {
 					System.out.println("Bad command: should be booksym SYM");
 				}
-			} else if(cmd.substring(0, 4).equals("book")) {
+			} else if(cmd.startsWith("book")) {
 				// get instrument id and source
 				String[] args=cmd.split("\\s");
 				if(args.length==3) {
@@ -71,7 +71,7 @@ public class Console {
 						"quit - exit the application\n"+"" +
 						"count - report number of instruments\n"+
 						"all - list all instruments\n"+
-						"traded - list all instruments with active trades"+
+						"traded - list all instruments with active trades\n"+
 						"book ID SRC - show order book for instrument ID from source SRC\n"+
 						"booksym SYMBOL - show order book for instrument with symbol SYM\n");
 			} else {

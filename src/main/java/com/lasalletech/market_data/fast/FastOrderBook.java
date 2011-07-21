@@ -60,8 +60,8 @@ public class FastOrderBook implements OrderBook {
 				// clear entries only if we know for sure that there is a snapshot refresh
 				// in here somewhere
 				if(firstUpdate) {
-					bids.clear();
-					offers.clear();
+					//bids.clear();
+					//offers.clear();
 					firstUpdate=false;
 				}
 				
