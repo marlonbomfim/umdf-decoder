@@ -37,6 +37,19 @@ public class Console {
 					}
 				}
 				printList(all);
+			} else if(cmd.substring(0,7).equals("booksym")) {
+				String[] args=cmd.split("\\s");
+				if(args.length==2) {
+					String sym=args[1];
+					Instrument inst=mgr.getInstrumentBySymbol(sym);
+					if(inst==null) {
+						System.out.println("Unknown symbol "+sym);
+					} else {
+						printBook(inst.getBook());
+					}
+				} else {
+					System.out.println("Bad command: should be booksym SYM");
+				}
 			} else if(cmd.substring(0, 4).equals("book")) {
 				// get instrument id and source
 				String[] args=cmd.split("\\s");
@@ -46,13 +59,23 @@ public class Console {
 					
 					Instrument inst=mgr.getInstrument(id, src);
 					if(inst==null) {
-						System.out.println("\nUnknown instrument, give ID and Source");
+						System.out.println("Unknown instrument "+id+" or source "+src);
 					} else {
 						printBook(inst.getBook());
 					}
+				} else {
+					System.out.println("Bad command: should be book ID SRC");
 				}
+			} else if(cmd.equals("help")) {
+				System.out.print("Commands:\n"+
+						"quit - exit the application\n"+"" +
+						"count - report number of instruments\n"+
+						"all - list all instruments\n"+
+						"traded - list all instruments with active trades"+
+						"book ID SRC - show order book for instrument ID from source SRC\n"+
+						"booksym SYMBOL - show order book for instrument with symbol SYM\n");
 			} else {
-				System.out.println("\nUnknown command");
+				System.out.println("Unknown command");
 			}
 		}
 	}
