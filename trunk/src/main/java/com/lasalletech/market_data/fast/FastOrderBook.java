@@ -42,6 +42,8 @@ public class FastOrderBook implements OrderBook {
 	
 	private FastInstrument instrument;
 	
+	private boolean gotSnapshot=false;
+	
 	public FastOrderBook(FastInstrument inParent) {
 		instrument=inParent;
 		lastSnapshotSeq=-1;
@@ -49,6 +51,7 @@ public class FastOrderBook implements OrderBook {
 
 	public void processSnapshot(GroupValue msg) throws FieldNotFound, InvalidFieldValue {
 		boolean firstUpdate=true;
+		gotSnapshot=true;
 		for(GroupValue grp:msg.getSequence(Fields.MDENTRIES).getValues()) {
 			if(grp.isDefined(Fields.RPTSEQ)) {
 				long seq=grp.getLong(Fields.RPTSEQ);
@@ -69,13 +72,18 @@ public class FastOrderBook implements OrderBook {
 		}
 	}
 	
-	public void processIncremental(GroupValue grp) throws FieldNotFound,InvalidFieldValue {
+	public boolean processIncremental(GroupValue grp) throws FieldNotFound,InvalidFieldValue {
+		if(!gotSnapshot) {
+			// we have yet to get a snapshot update
+			return false;
+		}
 		int seq=FastUtil.getInt(grp, Fields.RPTSEQ);
-		if(seq<lastSnapshotSeq) return; // skip old updates
+		if(seq<lastSnapshotSeq) return false; // skip old updates
 		
 		lastSnapshotSeq=seq;
 		
 		processEntry(grp,false);
+		return true;
 	}
 	
 	private void processEntry(GroupValue grp,boolean snapshot) throws FieldNotFound,InvalidFieldValue {
