@@ -38,9 +38,9 @@ public class UmdfUdpQueue {
 				} catch(InterruptedException e) {
 				} catch(Exception e) {
 					e.printStackTrace();
+				} finally {
+					running=false;
 				}
-				
-				running=false;
 			}
 		};
 		

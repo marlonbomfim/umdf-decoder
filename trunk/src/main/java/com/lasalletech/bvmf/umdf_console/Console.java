@@ -1,16 +1,17 @@
-package com.lasalletech.umdf.console;
+package com.lasalletech.bvmf.umdf_console;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.lasalletech.umdf.book.Instrument;
-import com.lasalletech.umdf.book.InstrumentManager;
-import com.lasalletech.umdf.book.OrderBook;
-import com.lasalletech.umdf.book.OrderEntry;
+import com.lasalletech.market_data.Instrument;
+import com.lasalletech.market_data.InstrumentManager;
+import com.lasalletech.market_data.OrderBook;
+import com.lasalletech.market_data.OrderEntry;
 
 public class Console {
 	private static final int SCREEN_MAX_LINES=15;
@@ -57,28 +58,18 @@ public class Console {
 	}
 	
 	private void printList(Collection<Instrument> instruments) throws IOException {
-		Iterator<Instrument> iter=instruments.iterator();
-		
-		System.out.printf("ID\tSymbol\tSource\tBids\tOffers\n");
-		
-		boolean first=true;
-		while(iter.hasNext()) {
-			if(first) {
-				first=false;
-			} else {
-				System.out.print("c to continue, b to go back: ");
-				String cmd=con.readLine();
-				if(cmd.equals("b")) return;
-				System.out.println();
-			}
+		LinkedList<String> out=new LinkedList<String>();
+		for(Instrument cur:instruments) {
+			String sym="(none)";
+			if(cur.getSymbol()!=null) sym=cur.getSymbol();
 			
-			for(int i=0;i<SCREEN_MAX_LINES && iter.hasNext();++i) {
-				Instrument cur=iter.next();
-				System.out.printf("%s\t%s\t%s\t%d\t%d\n",
-						cur.getID(),cur.getSymbol(),cur.getSource(),
-						cur.getBook().bidCount(),cur.getBook().offerCount());
-			}
+			String exchg="(unknown)";
+			if(cur.getExchange()!=null) exchg=cur.getExchange();
+			
+			out.add(cur.getID()+"\t"+sym+"\t"+cur.getSource()+"\t"+exchg+"\t"+cur.getBook().bidCount()+"\t"+cur.getBook().offerCount());
 		}
+		
+		printLines(out,SCREEN_MAX_LINES,"ID\tSym\tSource\tExchg\tBids\tOffers");
 	}
 	
 	private void printBook(OrderBook book) throws IOException {
@@ -111,6 +102,27 @@ public class Console {
 					OrderEntry bid=bids.remove(0);
 					System.out.printf("%.3f\t%.3f\n",bid.getPrice(),bid.getQty());
 				}
+			}
+		}
+	}
+	
+	private void printLines(List<String> lines, int maxScreenLines, String header) throws IOException {
+		System.out.println("Total: "+lines.size());
+		Iterator<String> iter=lines.iterator();
+		
+		while(iter.hasNext()) {
+			System.out.println(header);
+			
+			for(int i=0;i<maxScreenLines && iter.hasNext();++i) {
+				System.out.println(iter.next());
+			}
+			
+			if(iter.hasNext()) {
+				System.out.print("c to continue, b to go back: ");
+				String cmd=con.readLine();
+				System.out.println();
+				
+				if(cmd.equals("b")) return;
 			}
 		}
 	}

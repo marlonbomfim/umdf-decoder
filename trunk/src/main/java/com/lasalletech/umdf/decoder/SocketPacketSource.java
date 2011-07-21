@@ -3,10 +3,6 @@ package com.lasalletech.umdf.decoder;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.Socket;
-import java.net.SocketAddress;
 
 /*
  * Packet source that gets real data from a socket
