@@ -174,4 +174,12 @@ public class FastMarketDataProcessor implements InstrumentManager {
 	private String makeHash(GroupValue grp) throws FieldNotFound {
 		return makeHash(FastUtil.getString(grp, Fields.SECURITYID),FastUtil.getString(grp,Fields.SECURITYIDSOURCE));
 	}
+
+	@Override
+	public Instrument getInstrumentBySymbol(String sym) {
+		for(FastInstrument cur:instruments.values()) {
+			if(cur.getSymbol().equals(sym)) return cur;
+		}
+		return null;
+	}
 }
