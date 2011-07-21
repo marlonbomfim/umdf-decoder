@@ -67,8 +67,7 @@ public class FastInstrument implements Instrument {
 	}
 	
 	public boolean processIncrementals(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		book.processIncremental(grp);
-		return true; // we always either process or discard incrementals
+		return book.processIncremental(grp);
 	}
 
 	private String id;
