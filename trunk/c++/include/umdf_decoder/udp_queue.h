@@ -16,7 +16,7 @@ class UdpQueue {
 public:
   UdpQueue(std::string ip, int port);
 
-  UmdfMessage read();
+  Message read();
   bool read(UmdfMessage& out, boost::system_time timeout);
 
 private:
@@ -27,9 +27,9 @@ private:
   void start_read();
   void on_read(boost::system::error_code);
 
-  std::unordered_map<int,UmdfMessage> incoming;
+  std::unordered_map<int,Message> incoming;
 
-  std::queue<UmdfMessage> outgoing;
+  std::queue<Message> outgoing;
   boost::mutex outgoing_mutex;
 
   boost::condition_variable wait_cond;
