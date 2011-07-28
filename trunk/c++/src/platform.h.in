@@ -1,0 +1,20 @@
+/** :mode=c++:indentSize=2:noTabs=true:tabSize=2:
+  @brief platform-specific settings
+
+  longdesc
+*/
+
+#ifndef PLATFORM_H_IN_
+#define PLATFORM_H_IN_ 1
+
+// replaced by CMake
+#define PLATFORM_LINUX  @DEF_IS_LINUX@
+#define PLATFORM_WIN    @DEF_IS_WIN@
+
+// sanity check
+#if (PLATFORM_LINUX && PLATFORM_WIN) || (!PLATFORM_LINUX && !PLATFORM_WIN)
+# error Unknown platform
+#endif
+
+#endif // PLATFORM_H_IN_
+

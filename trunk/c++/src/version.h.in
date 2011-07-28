@@ -1,0 +1,17 @@
+/** :mode=c++:indentSize=2:noTabs=true:tabSize=2:
+  @brief version information
+
+  longdesc
+*/
+
+#ifndef VERSION_H_IN_
+#define VERSION_H_IN_ 1
+
+#define @DEF_VER_NAME@_VERSION_MAJOR @DEF_VER_MAJOR@
+#define @DEF_VER_NAME@_VERSION_MINOR @DEF_VER_MINOR@
+
+#define @DEF_VER_NAME@_VERSION \
+  (@DEF_VER_NAME@_VERSION_MAJOR*100+@DEF_VER_NAME@_VERSION_MINOR)
+
+#endif // VERSION_H_IN_
+
