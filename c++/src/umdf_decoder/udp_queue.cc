@@ -13,6 +13,7 @@
 using std::string;
 using std::make_pair;
 using std::bind;
+using namespace std::placeholders;
 
 using boost::system::error_code;
 
@@ -42,7 +43,7 @@ void UdpQueue::on_read(error_code e) {
     auto iter=incoming.find(packet.seqnum());
     if(iter==incoming.end()) {
       iter=incoming.insert(
-        make_pair(packet.seqnum(),UmdfMessage(packet))).first;
+        make_pair(packet.seqnum(),Message(packet))).first;
     } else {
       iter->add(packet);
     }
@@ -66,7 +67,7 @@ void UdpQueue::on_read(error_code e) {
   start_read();
 }
 
-void UmdfMessage read() {
+void Message read() {
   unique_lock<mutex> lock(outgiong_mutex);
   while(data_ready<=0) wait_cond.wait(lock);
 
@@ -74,7 +75,7 @@ void UmdfMessage read() {
   return outgoing.pop();
 }
 
-bool read(UmdfMessage& out,system_time timeout) {
+bool read(Message& out,system_time timeout) {
   unique_lock<mutex> lock(outgiong_mutex);
   while(data_ready<=0) {
     if(!wait_cond.timed_wait(lock,timeout)) return false;
