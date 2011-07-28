@@ -5,16 +5,12 @@
 cmake_minimum_required(VERSION 2.6)
 
 project(umdf-decoder)
-
-# version information
-set(UMDF_DECODER_VERSION_MAJOR 0)
-set(UMDF_DECODER_VERSION_MINOR 1)
+set(DEF_VER_NAME "UMDF_DECODER")
+set(DEF_VER_MAJOR 0)
+set(DEF_VER_MINOR 1)
 configure_file(
-  "${PROJECT_SOURCE_DIR}/pre/version.h.in"
-  "${PROJECT_BINARY_DIR}/pre/version.h")
+  "${PROJECT_SOURCE_DIR}/../version.h.in"
+  "${PROJECT_BINARY_DIR}/pre/umdf-decoder/version.h")
 
-# add for preprocessed files
-include_directories("${RPOJECT_BINARY_DIR}/pre")
-
-
+add_library()
 
