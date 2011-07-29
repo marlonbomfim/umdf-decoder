@@ -87,6 +87,7 @@ public class UmdfMessageAggregator {
 			
 			if(System.currentTimeMillis()-lastRecvTime>RECV_TIMEOUT) {
 				//TODO: timeout, get from replay stream
+				System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout");
 			}
 		}
 	}
