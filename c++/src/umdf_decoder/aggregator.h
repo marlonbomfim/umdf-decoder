@@ -8,18 +8,16 @@
 #define AGGREGATOR_H_ 1
 
 #include <list>
+#include <functional>
 
 #include <boost/thread.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-struct MessageListener {
-  virtual void on_message(Message,Aggregator&)=0;
-};
-
 class Aggregator {
 public:
-  void add_listener(MessageListener& obj) { hooks.push_back(&obj); }
-  void remove_listener(MessageListener& obj) { hooks.remove(&obj); }
+  typedef std::function<void(Message,Aggregator&> callback_type;
+  void add_listener(callback_type f) { hooks.push_back(f); }
+  void remove_listener(callback_type f) { hooks.remove(f); }
 
   void start(UdpQueue& q);
   void stop();
@@ -28,7 +26,7 @@ public:
 
 private:
   std::unordered_map<int,Message> backlog;
-  std::list<MessageListener*> hooks;
+  std::list<callback_type> hooks;
 
   int curr_seqnum;
 

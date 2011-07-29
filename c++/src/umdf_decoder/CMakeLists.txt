@@ -10,7 +10,5 @@ set(DEF_VER_MAJOR 0)
 set(DEF_VER_MINOR 1)
 configure_file(
   "${PROJECT_SOURCE_DIR}/../version.h.in"
-  "${PROJECT_BINARY_DIR}/pre/umdf-decoder/version.h")
-
-add_library()
+  "${PROJECT_BINARY_DIR}/pre/umdf-decoder-version.h")
 

@@ -67,8 +67,6 @@ void Aggregator::process(UdpQueue& q) {
 void Aggregator::process_msg(const Message& m) {
   curr_seqnum++;
 
-  for(MessageListener* cur:hooks) {
-    cur->on_message(m,*this);
-  }
+  for_each(hooks.begin(),hooks.end(),[=](callback_type f) { f(m); });
 }
 
