@@ -85,9 +85,13 @@ public class UmdfMessageAggregator {
 				// dropping the packet because it is too old
 			}
 			
-			if(System.currentTimeMillis()-lastRecvTime>RECV_TIMEOUT) {
+			long timeDelta=System.currentTimeMillis()-lastRecvTime;
+			if(timeDelta>RECV_TIMEOUT) {
 				//TODO: timeout, get from replay stream
-				System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout");
+				System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout: "+(((float)timeDelta)/1000.0));
+				if(timeDelta>(RECV_TIMEOUT*10)) {
+					System.exit(1);
+				}
 			}
 		}
 	}
@@ -105,7 +109,7 @@ public class UmdfMessageAggregator {
 	
 	private long currentSeqnum;
 	
-	private static final int RECV_TIMEOUT=100;
+	private static final int RECV_TIMEOUT=1000;
 	
 	private HashMap<Long,UmdfMessage> backlog=new HashMap<Long,UmdfMessage>();
 	

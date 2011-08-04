@@ -11,7 +11,8 @@ public interface OrderEntry {
 	public double getPrice();
 	public double getQty();
 	
-	public String getBroker();
+	public String getBuyer();
+	public String getSeller();
 	
 	public Calendar getDate();
 }

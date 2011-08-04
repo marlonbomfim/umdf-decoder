@@ -7,7 +7,7 @@ import org.openfast.template.MessageTemplate;
 import org.openfast.template.loader.MessageTemplateLoader;
 import org.openfast.template.loader.XMLMessageTemplateLoader;
 
-import com.lasalletech.market_data.fast.FastMarketDataProcessor;
+import com.lasalletech.market_data.fast.FastInstrumentManager;
 import com.lasalletech.umdf.decoder.MulticastPacketSource;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfUdpQueue;
@@ -37,7 +37,7 @@ public class Main {
 		MessageTemplateLoader templateLoader = new XMLMessageTemplateLoader();
 		MessageTemplate[] templates = templateLoader.load(templateSource);
 		
-		FastMarketDataProcessor instruments=new FastMarketDataProcessor();
+		FastInstrumentManager instruments=new FastInstrumentManager();
 		
 		// parse feed parameters
 		for(int i=0;i<args.length;++i) {
