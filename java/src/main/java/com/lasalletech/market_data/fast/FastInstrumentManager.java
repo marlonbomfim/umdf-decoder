@@ -168,4 +168,10 @@ public class FastInstrumentManager implements MarketData {
 		}
 		return null;
 	}
+	
+	public int getBacklogCount() {
+		synchronized(updates) {
+			return updates.size();
+		}
+	}
 }
