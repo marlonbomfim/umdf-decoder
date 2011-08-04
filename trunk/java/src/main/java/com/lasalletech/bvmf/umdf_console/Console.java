@@ -9,13 +9,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.lasalletech.market_data.Instrument;
-import com.lasalletech.market_data.MarketData;
 import com.lasalletech.market_data.OrderBook;
 import com.lasalletech.market_data.OrderEntry;
+import com.lasalletech.market_data.fast.FastInstrumentManager;
 
 public class Console {
 	private static final int SCREEN_MAX_LINES=15;
-	public void run(MarketData mgr) throws IOException {
+	public void run(FastInstrumentManager mgr) throws IOException {
 		while(true) {
 			System.out.print(": ");
 			String cmd=con.readLine();
@@ -73,7 +73,10 @@ public class Console {
 						"all - list all instruments\n"+
 						"traded - list all instruments with active trades\n"+
 						"book ID SRC - show order book for instrument ID from source SRC\n"+
-						"booksym SYMBOL - show order book for instrument with symbol SYM\n");
+						"booksym SYMBOL - show order book for instrument with symbol SYM\n"+
+						"status - print system status information useful for debugging\n");
+			} else if(cmd.equals("status")) {
+				System.out.print("FAST processing backlog: "+mgr.getBacklogCount()+"\n");
 			} else {
 				System.out.println("Unknown command");
 			}
