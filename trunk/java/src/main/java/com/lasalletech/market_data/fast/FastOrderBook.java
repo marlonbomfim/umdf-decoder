@@ -42,57 +42,58 @@ public class FastOrderBook implements OrderBook {
 	
 	private FastInstrument instrument;
 	
-	private boolean gotSnapshot=false;
+	private Queue<FastOrderEntry> bids=new PriorityBlockingQueue<FastOrderEntry>();
+	private Queue<FastOrderEntry> offers=new PriorityBlockingQueue<FastOrderEntry>();
+	
+	private Queue<GroupValue> incrementalBacklog=new LinkedList<GroupValue>();
+	
+	private int lastRptSeqnum=-1;
 	
 	public FastOrderBook(FastInstrument inParent) {
 		instrument=inParent;
-		lastSnapshotSeq=-1;
 	}
-
+	
+	public int getSeqnum() { return lastRptSeqnum; }
+	
 	public void processSnapshot(GroupValue msg) throws FieldNotFound, InvalidFieldValue {
-		boolean firstUpdate=true;
-		gotSnapshot=true;
+		int seq=FastUtil.getInt(msg, Fields.LASTMSGSEQNUMPROCESSED);
+		if(seq<lastRptSeqnum) return;
+		lastRptSeqnum=seq;
+		
+		//flushLog();
+		log(" -- refresh -- ");
+		bids.clear(); offers.clear();
 		for(GroupValue grp:msg.getSequence(Fields.MDENTRIES).getValues()) {
-			if(grp.isDefined(Fields.RPTSEQ)) {
-				long seq=grp.getLong(Fields.RPTSEQ);
-				if(lastSnapshotSeq>seq) continue;
-				
-				// clear entries only if we know for sure that there is a snapshot refresh
-				// in here somewhere
-				if(firstUpdate) {
-					//bids.clear();
-					//offers.clear();
-					firstUpdate=false;
-				}
-				
-				lastSnapshotSeq=seq;
-			}
-			
-			processEntry(grp,true);
+			processEntry(grp,NEW);
 		}
+		log(" -- end refresh -- ");
 	}
 	
-	public boolean processIncremental(GroupValue grp) throws FieldNotFound,InvalidFieldValue {
-		if(!gotSnapshot) {
-			// we have yet to get a snapshot update
-			return false;
+	public void processIncremental(GroupValue grp) throws FieldNotFound, InvalidFieldValue {
+		if(lastRptSeqnum==-1) {
+			incrementalBacklog.add(grp);
+			return;
 		}
+		
+		while(!incrementalBacklog.isEmpty()) {
+			processIncremental(incrementalBacklog.remove());
+		}
+		
 		int seq=FastUtil.getInt(grp, Fields.RPTSEQ);
-		if(seq<lastSnapshotSeq) return false; // skip old updates
+		if(seq<lastRptSeqnum) return;
+		lastRptSeqnum=seq;
 		
-		lastSnapshotSeq=seq;
-		
-		processEntry(grp,false);
-		return true;
+		processEntry(grp,FastUtil.getString(grp, Fields.MDUPDATEACTION));
 	}
 	
-	private void processEntry(GroupValue grp,boolean snapshot) throws FieldNotFound,InvalidFieldValue {
+	private void processEntry(GroupValue grp,String op) throws FieldNotFound, InvalidFieldValue {
 		String type=FastUtil.getString(grp, Fields.MDENTRYTYPE);
+
 		//TODO: implement more of these
 		if(type.equals(BID)) {
-			processBid(grp,snapshot);
+			processBid(grp,op);
 		} else if(type.equals(OFFER)) {
-			processOffer(grp,snapshot);
+			processOffer(grp,op);
 		} else if(type.equals(TRADE)) {
 		} else if(type.equals(INDEX_VALUE)) {
 		} else if(type.equals(OPENING_PRICE)) {
@@ -112,46 +113,50 @@ public class FastOrderBook implements OrderBook {
 		}
 	}
 	
-	private void processBid(GroupValue grp,boolean snapshot) throws FieldNotFound, InvalidFieldValue {
-		String op=NEW;
-		if(!snapshot) {
-			op=FastUtil.getString(grp, Fields.MDUPDATEACTION);
-		}
-		
+	private void processBid(GroupValue grp,String op) throws FieldNotFound, InvalidFieldValue {
 		if(op.equals(NEW)) {
-			bids.add(new FastOrderEntry(grp,this));
+			log("New bid "+grp.getString(Fields.ORDERID));
+			addOrder(bids,grp);
 		} else if(op.equals(CHANGE)) {
+			log("Updated bid "+grp.getString(Fields.ORDERID));
 			updateOrder(bids,grp);
 		} else if(op.equals(DELETE)) {
 			deleteOrder(bids,grp);
+			log("Deleted bid "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(DELETE_THRU)) {
 			deleteOrderThru(bids,grp);
+			log("Deleted bids thru "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(DELETE_FROM)) {
 			deleteOrderFrom(bids,grp);
+			log("Deleted bids from "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(OVERLAY)) {
 			//TODO: implement
 		}
 	}
 	
-	private void processOffer(GroupValue grp,boolean snapshot) throws FieldNotFound, InvalidFieldValue {
-		String op=NEW;
-		if(!snapshot) {
-			op=FastUtil.getString(grp, Fields.MDUPDATEACTION);
-		}
-		
+	private void processOffer(GroupValue grp,String op) throws FieldNotFound, InvalidFieldValue {
 		if(op.equals(NEW)) {
-			offers.add(new FastOrderEntry(grp,this));
+			log("New offer "+grp.getString(Fields.ORDERID));
+			addOrder(offers,grp);
 		} else if(op.equals(CHANGE)) {
+			log("Updated offer "+grp.getString(Fields.ORDERID));
 			updateOrder(offers,grp);
 		} else if(op.equals(DELETE)) {
 			deleteOrder(offers,grp);
+			log("Deleted offer "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(DELETE_THRU)) {
 			deleteOrderThru(offers,grp);
+			log("Deleted offers thru "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(DELETE_FROM)) {
 			deleteOrderFrom(offers,grp);
+			log("Deleted offers from "+grp.getString(Fields.ORDERID));
 		} else if(op.equals(OVERLAY)) {
 			//TODO: implement
 		}
+	}
+	
+	private void addOrder(Queue<FastOrderEntry> q,GroupValue grp) throws FieldNotFound {
+		q.add(new FastOrderEntry(grp,this));
 	}
 	
 	private void deleteOrderThru(Queue<FastOrderEntry> q,GroupValue grp) throws FieldNotFound {
@@ -197,12 +202,12 @@ public class FastOrderBook implements OrderBook {
 		}
 		if(found==null) throw new InvalidFieldValue(Fields.ORDERID,id);
 		q.remove(found);
-		found.process(grp);
+		found.update(grp);
 		q.add(found);
 	}
 
 	@Override
-	public synchronized List<OrderEntry> getBids() {
+	public List<OrderEntry> getBids() {
 		LinkedList<OrderEntry> out=new LinkedList<OrderEntry>();
 		for(FastOrderEntry cur:bids) {
 			out.add(cur);
@@ -211,7 +216,7 @@ public class FastOrderBook implements OrderBook {
 	}
 
 	@Override
-	public synchronized List<OrderEntry> getOffers() {
+	public List<OrderEntry> getOffers() {
 		LinkedList<OrderEntry> out=new LinkedList<OrderEntry>();
 		for(FastOrderEntry cur:offers) {
 			out.add(cur);
@@ -229,10 +234,7 @@ public class FastOrderBook implements OrderBook {
 		return offers.peek();
 	}
 
-	private Queue<FastOrderEntry> bids=new PriorityBlockingQueue<FastOrderEntry>();
-	private Queue<FastOrderEntry> offers=new PriorityBlockingQueue<FastOrderEntry>();
 	
-	private long lastSnapshotSeq;
 
 	@Override
 	public Instrument getInstrument() {
@@ -247,5 +249,48 @@ public class FastOrderBook implements OrderBook {
 	@Override
 	public int offerCount() {
 		return offers.size();
+	}
+	
+	private List<String> log=new LinkedList<String>();
+	
+	public void log(String msg) {
+		log.add(lastRptSeqnum+" "+msg);
+	}
+	public List<String> getLog() {
+		return log;
+	}
+	private void flushLog() {
+		log.clear();
+	}
+	
+	public boolean correctnessTest(FastOrderBook other) {
+		boolean equal=true;
+		
+		if(bidCount()!=other.bidCount()) {
+			System.out.println("Bids "+bidCount()+" != "+other.bidCount());
+			equal=false;
+		}
+		if(offerCount()!=other.offerCount()) {
+			System.out.println("Offers "+offerCount()+" != "+other.offerCount());
+			equal=false;
+		}
+		
+		Iterator<FastOrderEntry> iter1,iter2;
+		
+		iter1=bids.iterator(); iter2=other.bids.iterator();
+		while(iter1.hasNext()&&iter2.hasNext()) {
+			if(!iter1.next().correctnessTest(iter2.next())) {
+				equal=false;
+			}
+		}
+		
+		iter1=offers.iterator(); iter2=other.offers.iterator();
+		while(iter1.hasNext()&&iter2.hasNext()) {
+			if(!iter1.next().correctnessTest(iter2.next())) {
+				equal=false;
+			}
+		}
+		
+		return equal;
 	}
 }

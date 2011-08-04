@@ -9,13 +9,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.lasalletech.market_data.Instrument;
-import com.lasalletech.market_data.InstrumentManager;
+import com.lasalletech.market_data.MarketData;
 import com.lasalletech.market_data.OrderBook;
 import com.lasalletech.market_data.OrderEntry;
 
 public class Console {
 	private static final int SCREEN_MAX_LINES=15;
-	public void run(InstrumentManager mgr) throws IOException {
+	public void run(MarketData mgr) throws IOException {
 		while(true) {
 			System.out.print(": ");
 			String cmd=con.readLine();

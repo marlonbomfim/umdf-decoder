@@ -11,8 +11,14 @@ import com.lasalletech.market_data.fast.error.FieldNotFound;
 
 public class FastOrderEntry implements Comparable<FastOrderEntry>, OrderEntry {
 	public FastOrderEntry(GroupValue info,FastOrderBook inBook) throws FieldNotFound {
-		process(info);
 		book=inBook;
+		processFirst(info);
+		update(info);
+	}
+	
+	private void processFirst(GroupValue grp) throws FieldNotFound {
+		id=FastUtil.getString(grp, Fields.ORDERID);
+		buyer="(N/A)"; seller="(N/A)";
 	}
 	
 	public String getID() {
@@ -32,32 +38,76 @@ public class FastOrderEntry implements Comparable<FastOrderEntry>, OrderEntry {
 	
 	public Calendar getDate() { return timestamp; }
 	
-	public void process(GroupValue grp) throws FieldNotFound {
-		price=FastUtil.getDouble(grp, Fields.MDENTRYPX);
-		qty=FastUtil.getDouble(grp, Fields.MDENTRYSIZE);
+	public void update(GroupValue grp) throws FieldNotFound {
+		if(grp.isDefined(Fields.MDENTRYPX)) {
+			price=grp.getDouble(Fields.MDENTRYPX);
+			book.log("Price = "+price+" ("+grp.getValue(Fields.MDENTRYPX)+")");
+		}
+		if(grp.isDefined(Fields.MDENTRYSIZE)) {
+			qty=grp.getDouble(Fields.MDENTRYSIZE);
+			book.log("Qty = "+qty+" ("+grp.getValue(Fields.MDENTRYSIZE).toString()+")");
+		}
 		
-		timestamp=DateUtil.bvmfToCal(FastUtil.getLong(grp, Fields.MDENTRYDATE),FastUtil.getLong(grp, Fields.MDENTRYTIME));
+		if(grp.isDefined(Fields.MDENTRYDATE) && grp.isDefined(Fields.MDENTRYTIME)) {
+			timestamp=DateUtil.bvmfToCal(grp.getLong(Fields.MDENTRYDATE),grp.getLong(Fields.MDENTRYTIME));
+			book.log("Timestamp = "+timestamp.getTimeInMillis());
+		}
 		
-		id=FastUtil.getString(grp, Fields.ORDERID);
-		
-		pos=FastUtil.getInt(grp, Fields.MDENTRYPOSITIONNO);
+		if(grp.isDefined(Fields.MDENTRYPOSITIONNO)) {
+			pos=grp.getInt(Fields.MDENTRYPOSITIONNO);
+			book.log("Pos = "+pos);
+		}
 		
 		if(grp.isDefined(Fields.MDENTRYBUYER)) {
-			broker=grp.getString(Fields.MDENTRYBUYER);
-		} else if(grp.isDefined(Fields.MDENTRYSELLER)) {
-			broker=grp.getString(Fields.MDENTRYSELLER);
-		} else {
-			broker="(N/A)";
+			buyer=grp.getString(Fields.MDENTRYBUYER);
+			book.log("Buyer = "+buyer);
+		}
+		
+		if(grp.isDefined(Fields.MDENTRYSELLER)) {
+			seller=grp.getString(Fields.MDENTRYSELLER);
+			book.log("Seller = "+seller);
 		}
 	}
-	
-	//////////////////////////////////////////////////////////////////////////////
 	
 	@Override
 	public int compareTo(FastOrderEntry o) {
 		if(pos>o.pos) return 1;
 		else if(pos<o.pos) return -1;
 		else return 0;
+	}
+	
+	public boolean correctnessTest(FastOrderEntry other) {
+		boolean equal=true;
+		if(Math.abs(qty-other.qty)>0.00000001) {
+			System.out.print("Qty "+qty+" != "+other.qty+"\n");
+			equal=false;
+		}
+		if(Math.abs(price-other.price)>0.00000001) {
+			System.out.print("Price "+price+" != "+other.price+"\n");
+			equal=false;
+		}
+		if(!id.equals(other.id)) {
+			System.out.print("ID "+id+" != "+other.id+"\n");
+			equal=false;
+		}
+		if(!timestamp.equals(other.timestamp)) {
+			System.out.print("Timestamp "+timestamp.getTimeInMillis()+" != "+other.timestamp.getTimeInMillis()+"\n");
+			equal=false;
+		}
+		if(!buyer.equals(other.buyer)) {
+			System.out.print("Buyer "+buyer+" != "+other.buyer+"\n");
+			equal=false;
+		}
+		if(!seller.equals(other.seller)) {
+			System.out.print("Seller "+seller+" != "+other.seller+"\n");
+			equal=false;
+		}
+		if(pos!=other.pos) {
+			System.out.print("Pos "+pos+" != "+other.pos+"\n");
+			equal=false;
+		}
+		
+		return equal;
 	}
 	
 	private double qty;
@@ -68,7 +118,7 @@ public class FastOrderEntry implements Comparable<FastOrderEntry>, OrderEntry {
 	
 	private Calendar timestamp;
 	
-	private String broker;
+	private String buyer,seller;
 	
 	private int pos;
 		
@@ -85,7 +135,12 @@ public class FastOrderEntry implements Comparable<FastOrderEntry>, OrderEntry {
 	}
 
 	@Override
-	public String getBroker() {
-		return broker;
+	public String getBuyer() {
+		return buyer;
+	}
+
+	@Override
+	public String getSeller() {
+		return seller;
 	}
 }

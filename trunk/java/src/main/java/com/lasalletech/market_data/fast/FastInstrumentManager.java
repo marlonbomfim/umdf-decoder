@@ -1,21 +1,21 @@
 package com.lasalletech.market_data.fast;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Semaphore;
 
 import org.openfast.GroupValue;
 
 import com.lasalletech.market_data.Instrument;
-import com.lasalletech.market_data.InstrumentManager;
+import com.lasalletech.market_data.MarketData;
 import com.lasalletech.market_data.fast.error.FieldNotFound;
 import com.lasalletech.market_data.fast.error.InvalidFieldValue;
 import com.lasalletech.market_data.fast.error.UnsupportedMessageType;
 
-public class FastMarketDataProcessor implements InstrumentManager {
+public class FastInstrumentManager implements MarketData {
 
 	@Override
 	public Collection<Instrument> getAllInstruments() {
@@ -42,31 +42,10 @@ public class FastMarketDataProcessor implements InstrumentManager {
 	private Map<String,FastInstrument> instruments=new ConcurrentHashMap<String,FastInstrument>();
 
 	public void onMessage(GroupValue msg) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		String type=FastUtil.getString(msg, Fields.MSGTYPE);
-		//TODO: add callbacks
-		if(type.equals(Messages.SECURITYLIST)) {
-			synchronized(updates) {
-				updates.add(msg);
-			}
-		} else if(type.equals(Messages.SECURITYSTATUS)) {
-			synchronized(updates) {
-				updates.add(msg);
-			}
-		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
-			synchronized(updates) {
-				updates.add(msg);
-			}
-		} else if(type.equals(Messages.MARKETDATAINCREMENTALREFRESH)) {
-			synchronized(updates) {
-				updates.add(msg);
-			}
-		} else if(type.equals(Messages.NEWS)) {
-			synchronized(updates) {
-				updates.add(msg);
-			}
-		} else {
-			throw new UnsupportedMessageType(type);
+		synchronized(updates) {
+			updates.add(msg);
 		}
+		updateSem.release();
 	}
 	
 	private Thread thread;
@@ -77,7 +56,15 @@ public class FastMarketDataProcessor implements InstrumentManager {
 			public void run() {
 				try {
 					running=true;
-					processQueue();
+					
+					while(!Thread.interrupted()) {
+						updateSem.acquire();
+						synchronized(updates) {
+							processMsg(updates.remove());
+						}
+					}
+					
+					//processQueue();
 				//} catch(InterruptedException e) {
 				} catch(Exception e) {
 					e.printStackTrace();
@@ -95,52 +82,44 @@ public class FastMarketDataProcessor implements InstrumentManager {
 		}
 	}
 	
-	private List<GroupValue> updates=new LinkedList<GroupValue>();
+	private Queue<GroupValue> updates=new LinkedList<GroupValue>();
+	private Semaphore updateSem=new Semaphore(0);
 	
-	private void processQueue() throws FieldNotFound,InvalidFieldValue, UnsupportedMessageType {
-		while(!Thread.interrupted()) {
-			synchronized(updates) {
-				Iterator<GroupValue> iter=updates.iterator();
-				while(iter.hasNext()) {
-					GroupValue msg=iter.next();
-					String type=FastUtil.getString(msg, Fields.MSGTYPE);
-					if(type.equals(Messages.SECURITYLIST)) {
-						if(processInstrumentUpdates(msg)) iter.remove();
-					} else if(type.equals(Messages.NEWS)) {
-						//TODO: implement
-						iter.remove();
-					} else if(type.equals(Messages.MARKETDATAINCREMENTALREFRESH)) {
-						if(processIncrementals(msg)) iter.remove();
-					} else {
-						FastInstrument inst=instruments.get(makeHash(msg));
-						if(inst!=null) {
-							if(inst.process(msg)) iter.remove();
-						}
-					}
-				}
+	private void processMsg(GroupValue msg) throws FieldNotFound, InvalidFieldValue, UnsupportedMessageType {
+		String type=FastUtil.getString(msg, Fields.MSGTYPE);
+		
+		if(type.equals(Messages.SECURITYLIST)) {
+			processInstrumentUpdates(msg);
+		} else if(type.equals(Messages.NEWS)) {
+			//TODO: implement
+		} else if(type.equals(Messages.MARKETDATAINCREMENTALREFRESH)) {
+			processIncrementals(msg);
+		} else {
+			FastInstrument inst=instruments.get(makeHash(msg));
+			if(inst!=null) inst.process(msg);
+			else {
+				newInstrument(makeHash(msg),msg).process(msg);
 			}
 		}
 	}
 	
-	private boolean processIncrementals(GroupValue msg) throws FieldNotFound,InvalidFieldValue, UnsupportedMessageType {
-		boolean processed=true;
+	private void processIncrementals(GroupValue msg) throws FieldNotFound,InvalidFieldValue, UnsupportedMessageType {
 		for(GroupValue grp:FastUtil.getSequence(msg, Fields.MDENTRIES)) {
 			FastInstrument inst=instruments.get(makeHash(grp));
-			if(inst==null || !inst.processIncrementals(grp)) {
-				processed=false;
+			if(inst!=null) inst.processIncremental(grp);
+			else {
+				newInstrument(makeHash(msg),msg).processIncremental(grp);
 			}
 		}
-		
-		return processed;
 	}
 	
-	private boolean processInstrumentUpdates(GroupValue msg) throws FieldNotFound,InvalidFieldValue, UnsupportedMessageType {
+	private void processInstrumentUpdates(GroupValue msg) throws FieldNotFound,InvalidFieldValue, UnsupportedMessageType {
 		for(GroupValue grp:FastUtil.getSequence(msg,Fields.RELATEDSYM)) {
 			String code=makeHash(grp);
 			if(grp.isDefined(Fields.SECURITYUPDATEACTION)) {
 				char op=(char)grp.getByte(Fields.SECURITYUPDATEACTION);
 				if(op=='A') {
-					instruments.put(code, new FastInstrument(grp,this));
+					newInstrument(code,grp).processUpdate(grp);
 				} else if(op=='M') {
 					FastInstrument inst=instruments.get(code);
 					if(inst!=null) inst.processUpdate(grp);
@@ -157,14 +136,21 @@ public class FastMarketDataProcessor implements InstrumentManager {
 				// no action specified.  either create it, or modify it if it exists
 				FastInstrument inst=instruments.get(code);
 				if(inst==null) {
-					instruments.put(code, new FastInstrument(grp,this));
+					newInstrument(code,grp).processUpdate(grp);
 				} else {
 					inst.processUpdate(grp);
 				}
 			}
 		}
-		
-		return true; // we always end up processing this message
+	}
+	
+	private FastInstrument newInstrument(String code,GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
+		FastInstrument newInst=new FastInstrument(grp,this);
+		if(instruments.put(code,newInst)!=null) {
+			System.out.println("[FastInstrumentManager.newInstrument]: Duplicate instrument code "+code);
+			throw new InvalidFieldValue(Fields.SECURITYID,grp.getString(Fields.SECURITYID));
+		}
+		return newInst;
 	}
 	
 	private String makeHash(String id,String src) {

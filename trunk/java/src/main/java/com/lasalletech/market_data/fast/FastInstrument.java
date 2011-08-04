@@ -10,23 +10,21 @@ import com.lasalletech.market_data.fast.error.UnsupportedMessageType;
 
 public class FastInstrument implements Instrument {
 
-	public FastInstrument(GroupValue grp,FastMarketDataProcessor mgr)
+	public FastInstrument(GroupValue grp,FastInstrumentManager mgr)
 			throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		book=new FastOrderBook(this);
+		snapshotBook=new FastOrderBook(this);
+		incrementalBook=new FastOrderBook(this);
 		id=FastUtil.getString(grp, Fields.SECURITYID);
 		source=FastUtil.getString(grp, Fields.SECURITYIDSOURCE);
 		exchange=FastUtil.getString(grp,Fields.SECURITYEXCHANGE, "(none)");
-		symbol=FastUtil.getString(grp, Fields.SYMBOL,"(none)");
-		
-		processUpdate(grp);
 	}
 
 	@Override
 	public OrderBook getBook() {
-		return book;
+		return incrementalBook;
 	}
 	public FastOrderBook getUmdfBook() {
-		return book;
+		return incrementalBook;
 	}
 
 	@Override
@@ -50,24 +48,48 @@ public class FastInstrument implements Instrument {
 	}
 	
 	public void processUpdate(GroupValue grp) throws UnsupportedMessageType,FieldNotFound,InvalidFieldValue {
-		//TODO: 
+		symbol=FastUtil.getString(grp, Fields.SYMBOL,"(none)");
+		
+		//TODO: implement
 	}
 
-	public boolean process(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
+	public void process(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
 		String type=FastUtil.getString(grp, Fields.MSGTYPE);
 		if(type.equals(Messages.SECURITYSTATUS)) {
 			//TODO: implement
 		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
-			book.processSnapshot(grp);
+			snapshotBook.processSnapshot(grp);
+			if(incrementalBook.getSeqnum()==-1) {
+				incrementalBook.processSnapshot(grp);
+			}
 		} else {
 			throw new UnsupportedMessageType(type);
 		}
 		
-		return true; // we end up processing everything we read in here
+		correctnessTest();
 	}
 	
-	public boolean processIncrementals(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		return book.processIncremental(grp);
+	public void processIncremental(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
+		incrementalBook.processIncremental(grp);
+		correctnessTest();
+	}
+	
+	private void correctnessTest() {
+		if(snapshotBook.getSeqnum()==incrementalBook.getSeqnum()) {
+			if(!snapshotBook.correctnessTest(incrementalBook)) {
+				System.out.println("==== Snapshot log ====");
+				for(String cur:snapshotBook.getLog()) {
+					System.out.println(cur);
+				}
+				System.out.println();
+				System.out.println("==== Incremental log ====");
+				for(String cur:incrementalBook.getLog()) {
+					System.out.println(cur);
+				}
+				
+				System.exit(1);
+			}
+		}
 	}
 
 	private String id;
@@ -75,5 +97,6 @@ public class FastInstrument implements Instrument {
 	private String exchange;
 	private String symbol;
 	
-	private FastOrderBook book;
+	private FastOrderBook snapshotBook;
+	private FastOrderBook incrementalBook;
 }
