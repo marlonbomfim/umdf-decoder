@@ -7,12 +7,49 @@
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>umdf</name>
-  <url>http://maven.apache.org</url>
+  <organization>
+    <name>The LaSalle Technology Group, LLC</name>
+    <url>http://www.lasalletech.com</url>
+  </organization>
+
+  <name>OpenUMDF</name>
+
+  <description>
+    OpenUMDF is a Java implementation of the FAST UMDF protocol on top of OpenFAST
+  </description>
+
+  <developers>
+  </developers>
+
+  <contributors>
+  </contributors>
+
+  <licenses>
+    <license>
+      <name>Mozilla Public License Version 1.1</name>
+      <url>http://www.mozilla.org/MPL/MPL-1.1.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <url>http://www.openumdf.org</url>
+  <inceptionYear>2011</inceptionYear>
+
+  <issueManagement>
+  </issueManagement>
+
+  <scm>
+    <connection></connection>
+    <developerConnection></developerConnection>
+    <url></url>
+  </scm>
+
+  <mailingLists>
+  </mailingLists>
 
   <build>
     <plugins>

@@ -1,5 +1,6 @@
 package com.lasalletech.umdf.decoder;
 
+import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -37,9 +38,11 @@ public class UmdfMessageAggregator {
 		}
 	}
 	
-	public void start(UmdfUdpQueue inQ) {
+	public void start(UmdfUdpQueue inQ, ReplayStream replay, int replayTimeout) {
 		stop();
 		udpQ=inQ;
+		replayStream=replay;
+		replayRequestTimeout=replayTimeout;
 		thread=new Thread() {
 			@Override
 			public void run() {
@@ -58,8 +61,13 @@ public class UmdfMessageAggregator {
 		thread.start();
 	}
 	
-	private void processQueue() throws InterruptedException {
+	public void start(UmdfUdpQueue inQ,ReplayStream replay) {
+		start(inQ,replay,DEFAULT_REPLAY_TIMEOUT);
+	}
+	
+	private void processQueue() throws InterruptedException, IOException {
 		long lastRecvTime=System.currentTimeMillis();
+		UmdfMessage raw=null;
 		
 		while(!Thread.interrupted()) {
 			
@@ -70,7 +78,7 @@ public class UmdfMessageAggregator {
 			}
 			
 			// deal with a new message
-			UmdfMessage raw=udpQ.read();
+			raw=udpQ.read();
 			
 			// set our seqnum if we haven't already
 			if(currentSeqnum<0) currentSeqnum=raw.getMsgSeqNum();
@@ -86,11 +94,14 @@ public class UmdfMessageAggregator {
 			}
 			
 			long timeDelta=System.currentTimeMillis()-lastRecvTime;
-			if(timeDelta>RECV_TIMEOUT) {
-				//TODO: timeout, get from replay stream
-				System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout: "+(((float)timeDelta)/1000.0));
-				if(timeDelta>(RECV_TIMEOUT*10)) {
-					System.exit(1);
+			if(timeDelta>replayRequestTimeout) {
+				if(replayStream==null || (raw=replayStream.request(currentSeqnum))==null) {
+					// the packet has been dropped and we can't do much about it
+					System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout on message "+currentSeqnum);
+					throw new IOException();
+				} else {
+					process(raw);
+					lastRecvTime=System.currentTimeMillis();
 				}
 			}
 		}
@@ -109,7 +120,9 @@ public class UmdfMessageAggregator {
 	
 	private long currentSeqnum;
 	
-	private static final int RECV_TIMEOUT=1000;
+	private static final int DEFAULT_REPLAY_TIMEOUT=1000;
+	private int replayRequestTimeout=0;
+	private ReplayStream replayStream=null;
 	
 	private HashMap<Long,UmdfMessage> backlog=new HashMap<Long,UmdfMessage>();
 	

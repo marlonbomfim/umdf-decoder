@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="OpenUMDF">
+  <bannerLeft>
+    <name>OpenUMDF</name>
+    <src></src>
+    <href>http://www.openumdf.org/</href>
+  </bannerLeft>
+  <body>
+    <head>
+      <meta name="keywords" content="openumdf, open umdf, umdf, fast 1.1, fix, fix adapted for streaming, lasalletech, lasalle technology group" />
+    </head>
+
+    <links>
+      <item name="OpenUMDF @ Google Code" href="http://http://code.google.com/p/umdf-decoder/" />
+      <item name="Lasalletech" href="http://www.lasalletech.com" />
+    </links>
+
+    <menu name="OpenUMDF">
+      <item name="Download" href="http://code.google.com/p/umdf-decoder/downloads/list" />
+      <item name="License" href="license.html" />
+    </menu>
+
+    <menu name="Documentation">
+      <item name="Javadocs" href="apidocs/" />
+      <item name="Wiki" href="http://code.google.com/p/umdf-decoder/w/list" />
+    </menu>
+
+    <menu ref="reports" />
+  </body>
+
+  <skin>
+    <groupId>org.apache.maven.skins</groupId>
+    <artifactId>maven-stylus-skin</artifactId>
+    <version>1.0.1</version>
+  </skin>
+
+  <poweredBy>
+    <item name="Google Code" href="http://code.google.com/" />
+    <item name="Maven" href="http://maven.apache.org/" />
+  </poweredBy>
+
+</project>
+

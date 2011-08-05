@@ -1,5 +1,7 @@
 package com.lasalletech.umdf.decoder;
 
+import java.io.IOException;
+
 public interface ReplayStream {
-	public void request(long seqnum) throws Exception;
+	public UmdfMessage request(long seqnum) throws IOException;
 }

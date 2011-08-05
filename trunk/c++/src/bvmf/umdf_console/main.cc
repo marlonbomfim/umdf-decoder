@@ -54,16 +54,6 @@ int main(int argc,char** argv) {
     //
   }*/
 
-  Aggregator a;
-  a.add_listener([](Message m,Aggregator& a) { cout << m.seqnum(); });
-  UdpQueue q("233.111.180.112",10050);
-  a.start(q);
-
-  string tmp;
-  cin>>tmp;
-
-  a.stop();
-
   return 0;
 }
 
