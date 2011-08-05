@@ -2,7 +2,6 @@
 <project name="OpenUMDF">
   <bannerLeft>
     <name>OpenUMDF</name>
-    <src></src>
     <href>http://www.openumdf.org/</href>
   </bannerLeft>
   <body>
@@ -11,7 +10,7 @@
     </head>
 
     <links>
-      <item name="OpenUMDF @ Google Code" href="http://http://code.google.com/p/umdf-decoder/" />
+      <item name="OpenUMDF @ Google Code" href="http://code.google.com/p/umdf-decoder/" />
       <item name="Lasalletech" href="http://www.lasalletech.com" />
     </links>
 
@@ -34,10 +33,10 @@
     <version>1.0.1</version>
   </skin>
 
-  <poweredBy>
-    <item name="Google Code" href="http://code.google.com/" />
-    <item name="Maven" href="http://maven.apache.org/" />
-  </poweredBy>
+  <!--<poweredBy>
+    <logo name="Google Code" href="http://code.google.com/" />
+    <logo name="Maven" href="http://maven.apache.org/" />
+  </poweredBy>-->
 
 </project>
 
