@@ -72,7 +72,7 @@ public class Main {
 			aggregator.addListener(new BvmfSession(instruments,ctx));
 			UmdfUdpQueue q=new UmdfUdpQueue();
 			q.listen(new MulticastPacketSource(ip,port));
-			aggregator.start(q);
+			aggregator.start(q,null);
 		}
 		
 		instruments.start();
