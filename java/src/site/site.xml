@@ -33,10 +33,5 @@
     <version>1.0.1</version>
   </skin>
 
-  <!--<poweredBy>
-    <logo name="Google Code" href="http://code.google.com/" />
-    <logo name="Maven" href="http://maven.apache.org/" />
-  </poweredBy>-->
-
 </project>
 
