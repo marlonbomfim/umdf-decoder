@@ -18,6 +18,16 @@
   </description>
 
   <developers>
+    <developer>
+      <name>Wes Fournier</name>
+      <organization>Lasalletech</name>
+      <organizationUrl>
+        http://www.lasalletech.com
+      </organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
   </developers>
 
   <contributors>
@@ -39,6 +49,8 @@
   <inceptionYear>2011</inceptionYear>
 
   <issueManagement>
+    <system>google code</system>
+    <url>http://code.google.com/p/umdf-decoder/issues/list</url>
   </issueManagement>
 
   <scm>
@@ -58,6 +70,25 @@
               <source>1.5</source>
               <target>1.5</target>
           </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.googlecode.maven-gcu-plugin</groupId>
+        <artifactId>maven-gcu-plugin</artifactId>
+        <version>1.0</version>
+        <configuration>
+          <serverId>openumdf-googlecode</serverId>
+          <failsOnError>true</failsOnError>
+          <projectName>umdf-decoder</projectName>
+          <uploads>
+            <upload>
+              <file>${project.build.directory}/${project.artifactId}-${project.version}.${project.packaging}</file>
+              <summary>${project.name} sources bundle ${project.version}</summary>
+              <labels>
+                <label>Featured</label>
+                <label>Type-Archive</label>
+              </labels>
+            </upload>
+          </uploads>
       </plugin>
     </plugins>
   </build>
@@ -100,4 +131,22 @@
       <version>1.3.0</version>
     </dependency>
   </dependencies>
+
+  <distributionManagement>
+    <repository>
+      <id>openumdf.org</id>
+      <name>OpenUMDF Repository</name>
+      <url>scp://www.openumdf.org/home6/lasallet/public_html/openumdf/maven/release</url>
+    </repository>
+    <snapshotRepository>
+      <id>openumdf.org</id>
+      <name>OpenUMDF Snapshot Repository</name>
+      <url>scp://www.openumdf.org/home6/lasallet/public_html/openumdf/maven/snapshot</url>
+    </snapshotRepository>
+    <site>
+      <id>openumdf.org</id>
+      <name>OpenUMDF Web Site</name>
+      <url>scp://www.openumdf.org/home6/lasallet/public_html/openumdf</url>
+    </site>
+  </distributionManagement>
 </project>
