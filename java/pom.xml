@@ -3,7 +3,7 @@
 
   <groupId>com.lasalletech.umdf</groupId>
   <artifactId>umdf</artifactId>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <organization>
@@ -42,9 +42,9 @@
   </issueManagement>
 
   <scm>
-    <connection>scm:svn:http://umdf-decoder.googlecode.com/svn/tags/umdf-0.1</connection>
-    <developerConnection>scm:svn:https://umdf-decoder.googlecode.com/svn/tags/umdf-0.1</developerConnection>
-    <url>http://code.google.com/p/umdf-decoder/source/browse/tags/umdf-0.1</url>
+    <connection>scm:svn:http://umdf-decoder.googlecode.com/svn/trunk/</connection>
+    <developerConnection>scm:svn:https://umdf-decoder.googlecode.com/svn/trunk/</developerConnection>
+    <url>http://code.google.com/p/umdf-decoder/source/browse/</url>
   </scm>
 
   <mailingLists>
