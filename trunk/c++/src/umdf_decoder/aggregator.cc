@@ -6,11 +6,39 @@
 
 #include "aggregator.h"
 
+#include <utility>
+#include <iostream>
+
+#include "common.h"
+
+using std::cout;
+using std::endl;
 using boost::thread;
-using boost::microsec_clock::local_time;
+using boost::posix_time::microsec_clock;
+using boost::posix_time::milliseconds;
+//using std::bind;
+using boost::bind;
+using std::make_pair;
+using boost::diagnostic_information;
+
+void Aggregator::thread_helper(Aggregator* a,UdpQueue* q) {
+  try {
+    a->running=true;
+    a->process(*q);
+  } catch(boost::exception& e) {
+    cout<<"[Aggregator::thread_helper]: caught boost::exception: "
+      <<diagnostic_information(e)<<endl;
+  } catch(std::exception& e) {
+    cout<<"[Aggregator::thread_helper]: caught std::exception: "
+      <<diagnostic_information(e)<<endl;
+  }
+
+  a->running=false;
+}
 
 void Aggregator::start(UdpQueue& q) {
-  read_thread=new thread([=]() {
+  stop();
+  /*read_thread=new thread([=]() {
       try {
         running=true;
         this->process(q);
@@ -19,7 +47,8 @@ void Aggregator::start(UdpQueue& q) {
       }
 
       running=false;
-  });
+  });*/
+  read_thread.reset(new thread(bind(&thread_helper,this,&q)));
 }
 
 void Aggregator::stop() {
@@ -34,15 +63,15 @@ void Aggregator::reset(int new_seqnum) {
 }
 
 void Aggregator::process(UdpQueue& q) {
-  last_recv_time=local_time();
+  last_recv_time=microsec_clock::local_time();
 
   Message msg;
 
   while(!done_reading) {
-    std::unordered_map<int,Message>::iterator iter;
+    std::map<int,Message>::iterator iter;
     while((iter=backlog.find(curr_seqnum))!=backlog.end()) {
-      process_msg(*iter);
-      last_recv_time=local_time();
+      process_msg(iter->second);
+      last_recv_time=microsec_clock::local_time();
     }
 
     msg=q.read();
@@ -50,15 +79,17 @@ void Aggregator::process(UdpQueue& q) {
     //if(q.read(msg,MAX_RECV_TIMEOUT)) {
       if(curr_seqnum<0) curr_seqnum=msg.seqnum();
 
+      TRACE(msg.seqnum());
+
       if(msg.seqnum()==curr_seqnum) {
         process_msg(msg);
-        last_recv_time=local_time();
+        last_recv_time=microsec_clock::local_time();
       } else if(msg.seqnum()>curr_seqnum) {
         backlog.insert(make_pair(msg.seqnum(),msg));
       }
     //}
 
-    if(local_time()-last_recv_time>MAX_RECV_TIMEOUT) {
+    if(microsec_clock::local_time()-last_recv_time>milliseconds(MAX_RECV_TIMEOUT)) {
       //TODO: replay stream request here
     }
   }
@@ -67,6 +98,9 @@ void Aggregator::process(UdpQueue& q) {
 void Aggregator::process_msg(const Message& m) {
   curr_seqnum++;
 
-  for_each(hooks.begin(),hooks.end(),[=](callback_type f) { f(m); });
+  //for_each(hooks.begin(),hooks.end(),[=](callback_type f) { f(m); });
+  for(std::vector<callback_type>::iterator i=hooks.begin();i!=hooks.end();i++) {
+    (*i)(m,*this);
+  }
 }
 
