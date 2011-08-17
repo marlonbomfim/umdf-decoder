@@ -22,6 +22,7 @@
 
 class Aggregator {
 public:
+  Aggregator();
   //typedef std::function<void(Message,Aggregator&> callback_type;
   typedef boost::function<void(Message,Aggregator&)> callback_type;
   int add_listener(callback_type f) { hooks.push_back(f); return hooks.size(); }

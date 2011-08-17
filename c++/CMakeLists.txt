@@ -1,43 +1,50 @@
 # :mode=cmake:indentSize=2:noTabs=true:tabSize=2:
 # @brief base cmake file
-# longdesc
+# root of project with common CMake definitions
 
-cmake_minimum_required(VERSION 2.6)
-project(dump)
+cmake_minimum_required(VERSION 2.8)
+project(OpenUMDF_CC)
 
-if(WIN32)
-  set(DEF_IS_WIN 1)
-  set(DEF_IS_LINUX 0)
-else()
-  set(DEF_IS_LINUX 1)
-  set(DEF_IS_WIN 0)
+# C++ debug warnings and optimization
+if(UNIX)
+set(CMAKE_CXX_FLAGS_DEBUG "-ansi -g3 -O0 -Wall -Wextra -pedantic -Weffc++")
+set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -O3")
 endif()
 
+# platform-specific definitions
+if(UNIX)
+set(PLATFORM_UNIX ON)
+endif()
+if(WIN32)
+set(PLATFORM_WIN32 ON)
+endif()
 configure_file(
-  "${PROJECT_SOURCE_DIR}/src/platform.h.in"
+  "${PROJECT_SOURCE_DIR}/src/platform.h.cmake"
   "${PROJECT_BINARY_DIR}/pre/platform.h")
 
+# version definition
+set(DEF_VER_NAME  "OpenUMDF-C++")
+set(DEF_VER_MAJOR 0)
+set(DEF_VER_MINOR 1)
+set(DEF_VER_PATCH 0)
+set(DEF_VER_STR "${DEF_VER_NAME}-${DEF_VER_MAJOR}.${DEF_VER_MINOR}.${DEF_VER_PATCH}")
+configure_file(
+  "${PROJECT_SOURCE_DIR}/src/version.h.cmake"
+  "${PROJECT_BINARY_DIR}/pre/version.h")
+
+# common include folders
 include_directories(
   "${PROJECT_BINARY_DIR}/pre"
   "src"
-  "src/umdf_decoder"
 )
 
+# boost
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.4.0 COMPONENTS filesystem thread system)
+find_package(Boost 1.4.7 COMPONENTS thread system filesystem)
 include_directories(${Boost_INCLUDE_DIRS})
 
-set(dump_test_SOURCES
-  "src/umdf_decoder/test/dump.cc"
-  "src/umdf_decoder/aggregator.cc"
-  "src/umdf_decoder/message.cc"
-  "src/umdf_decoder/packet.cc"
-  "src/umdf_decoder/udp_queue.cc"
-)
-
-set(DEBUG ON)
-add_definitions(-g -Wall)
-
-add_executable(dump ${dump_test_SOURCES})
-target_link_libraries(dump ${Boost_LIBRARIES})
+# subprojects
+add_subdirectory("src/umdf_decoder")
+add_subdirectory("src/market_data")
+add_subdirectory("src/bvmf/umdf_console")
 
