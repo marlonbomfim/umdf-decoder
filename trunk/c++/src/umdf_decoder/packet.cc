@@ -21,10 +21,12 @@ using std::endl;
 using std::hex;
 
 #include "platform.h"
-#if PLATFORM_LINUX
+#if defined(PLATFORM_UNIX)
 #include <sys/types.h>
 #include <netinet/in.h>
-#elif PLATFORM_WIN
+#endif
+
+#if defined(PLATFORM_WINDOWS)
 #include <winsock2.h>
 #endif
 
@@ -43,7 +45,7 @@ Packet::Packet(const_buffer in) : msg_data(0) {
   read_encoded_data(buffer_cast<const void*>(in),buffer_size(in));
 }
 
-Packet::Packet(const Packet& in) {
+Packet::Packet(const Packet& in) : msg_data(0) {
   msg_len=in.msg_len;
   hdr_cur_chunk=in.hdr_cur_chunk;
   hdr_seq_num=in.hdr_seq_num;

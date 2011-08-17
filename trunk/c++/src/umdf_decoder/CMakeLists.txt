@@ -1,14 +1,17 @@
 # :mode=cmake:indentSize=2:noTabs=true:tabSize=2:
 # @brief cmake config for UMDF decoder
-# longdesc
+# the UMDF decoder library
 
-cmake_minimum_required(VERSION 2.6)
+project(OpenUMDF_CC_Decoder)
 
-project(umdf-decoder)
-set(DEF_VER_NAME "UMDF_DECODER")
-set(DEF_VER_MAJOR 0)
-set(DEF_VER_MINOR 1)
-configure_file(
-  "${PROJECT_SOURCE_DIR}/../version.h.in"
-  "${PROJECT_BINARY_DIR}/pre/umdf-decoder-version.h")
+set(OpenUMDF_CC_Decoder_SOURCES
+  "aggregator.cc"
+  "message.cc"
+  "packet.cc"
+  "udp_queue.cc")
+
+add_library(openumdf-decoder STATIC ${OpenUMDF_CC_Decoder_SOURCES})
+
+# tests
+add_subdirectory("test")
 

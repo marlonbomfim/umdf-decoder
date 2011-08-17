@@ -21,6 +21,10 @@ using boost::bind;
 using std::make_pair;
 using boost::diagnostic_information;
 
+Aggregator::Aggregator() :
+    curr_seqnum(-1), running(false), done_reading(false) {
+}
+
 void Aggregator::thread_helper(Aggregator* a,UdpQueue* q) {
   try {
     a->running=true;

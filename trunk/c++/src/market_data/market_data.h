@@ -10,7 +10,7 @@
 #include <list>
 #include <string>
 
-struct Instrument;
+#include "instrument.h"
 
 struct MarketData {
   virtual std::list<Instruments> instruments() const=0;
