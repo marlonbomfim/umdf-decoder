@@ -20,7 +20,7 @@
   <developers>
     <developer>
       <name>Wes Fournier</name>
-      <organization>Lasalletech</name>
+      <organization>Lasalletech</organization>
       <organizationUrl>
         http://www.lasalletech.com
       </organizationUrl>
@@ -28,6 +28,7 @@
         <role>developer</role>
       </roles>
       <timezone>-5</timezone>
+    </developer>
   </developers>
 
   <contributors>
@@ -89,6 +90,7 @@
               </labels>
             </upload>
           </uploads>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -129,6 +131,11 @@
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>1.3.0</version>
+    </dependency>
+    <dependency>
+    	<groupId>org.ini4j</groupId>
+    	<artifactId>ini4j</artifactId>
+    	<version>0.3.3</version>
     </dependency>
   </dependencies>
 
