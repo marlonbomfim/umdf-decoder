@@ -2,13 +2,15 @@
 # @brief FAST market data implementation
 # FIX over FAST version of MarketData api
 
-project(OpenUMDF_CC_MarketData_FAST)
+#project(OpenUMDF_CC_MarketData_FAST)
+
+#option(QuickFAST_PATH "Path to QuickFAST root" "~/quickfast")
 
 #set(OpenUMDF_CC_MarketData_FAST_SOURCES
 #  "book.cc"
 #  "instrument.cc"
-#  "instrument_mgr.cc"
-#  "order_ent.cc"
+#  "manager.cc"
+#  "order_entry.cc"
 #  "util.cc")
 
 #add_library(openumdf-marketdata-fast STATIC
