@@ -31,11 +31,12 @@ import com.lasalletech.umdf.decoder.fix_replay.fix_custom.NoApplSeqNums;
 import com.lasalletech.umdf.decoder.fix_replay.fix_custom.RawDataOffset;
 
 public class FixReplayStream implements ReplayStream {
-	public FixReplayStream(FixReplaySession mySession,int channel,String sendID,String targetID,String verStr) {
+	public FixReplayStream(FixReplaySession mySession,int channel,String sendID,String targetID,String verStr,String myName) {
 		channelID=channel;
 		senderCompID=sendID;
 		targetCompID=targetID;
 		beginString=verStr;
+		debugName=myName;
 		mySession.addStream(targetID, this);
 	}
 	
@@ -44,7 +45,7 @@ public class FixReplayStream implements ReplayStream {
 
 	@Override
 	public UmdfMessage request(long seqnum) throws IOException {
-		System.out.println("[FixReplayStream.request]: Sending request for "+seqnum+" from channel "+channelID);
+		System.out.println("[FixReplayStream.request]: ("+debugName+") Sending request for "+seqnum+" from channel "+channelID);
 		
 		try {
 			// check to see if we already have this message
@@ -129,4 +130,6 @@ public class FixReplayStream implements ReplayStream {
 	private String targetCompID;
 	private String senderCompID;
 	private String beginString;
+	
+	private String debugName;
 }

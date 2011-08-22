@@ -11,7 +11,7 @@ public class OrderedPacketStreamTest extends junit.framework.TestCase {
 		Vector<String> src=TestUtil.generateMessages(NUM_PACKETS);
 		Queue<String> out=new LinkedList<String>();
 		
-		UmdfUdpQueue q=new UmdfUdpQueue();
+		UmdfUdpQueue q=new UmdfUdpQueue("Test");
 		q.listen(new OrderedPacketSource(src));
 		
 		while(out.size()<NUM_PACKETS) {

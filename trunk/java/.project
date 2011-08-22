@@ -21,6 +21,11 @@
 			<locationURI>M2_REPO/backport-util-concurrent/backport-util-concurrent/2.2/backport-util-concurrent-2.2.jar</locationURI>
 		</link>
 		<link>
+			<name>ini4j-0.5.2.jar</name>
+			<type>1</type>
+			<locationURI>M2_REPO/org/ini4j/ini4j/0.5.2/ini4j-0.5.2.jar</locationURI>
+		</link>
+		<link>
 			<name>junit-3.8.1.jar</name>
 			<type>1</type>
 			<locationURI>M2_REPO/junit/junit/3.8.1/junit-3.8.1.jar</locationURI>

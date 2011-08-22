@@ -259,9 +259,6 @@ public class FastOrderBook implements OrderBook {
 	public List<String> getLog() {
 		return log;
 	}
-	private void flushLog() {
-		log.clear();
-	}
 	
 	public boolean correctnessTest(FastOrderBook other) {
 		boolean equal=true;

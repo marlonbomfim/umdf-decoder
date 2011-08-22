@@ -12,7 +12,7 @@ public class RandomizedPacketStreamTest extends TestCase {
 		Vector<String> src=TestUtil.generateMessages(NUM_PACKETS);
 		LinkedList<String> out=new LinkedList<String>();
 		
-		UmdfUdpQueue q=new UmdfUdpQueue();
+		UmdfUdpQueue q=new UmdfUdpQueue("Test");
 		q.listen(new RandomizedPacketSource(src));
 		
 		while(out.size()<NUM_PACKETS) {

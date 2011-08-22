@@ -1,102 +1,91 @@
 package com.lasalletech.bvmf.umdf_console;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.util.Map.Entry;
 
+import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
 import org.openfast.Context;
 import org.openfast.template.MessageTemplate;
 import org.openfast.template.loader.MessageTemplateLoader;
 import org.openfast.template.loader.XMLMessageTemplateLoader;
 
-import com.lasalletech.market_data.fast.FastInstrumentManager;
+import com.lasalletech.market_data.fast.TestFastInstrumentManager;
 import com.lasalletech.umdf.decoder.MulticastPacketSource;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfUdpQueue;
+import com.lasalletech.umdf.decoder.fix_replay.FixReplaySession;
+import com.lasalletech.umdf.decoder.fix_replay.FixReplayStream;
 
 public class Main {
+	private static MessageTemplate[] templates=null;
+	private static TestFastInstrumentManager instruments=new TestFastInstrumentManager();
 	public static void main(String[] args) throws Exception {
 		
-		String path="templates-UMDF.xml";
-		
-		// find FAST template path if given
-		for(int i=0;i<args.length;++i) {
-			if(args[i].equals("-t")) {
-				if(!(i<args.length-1)) {
-					System.out.println("Missing argument for -t");
-					return;
-				}
-				
-				path=args[i+1];
-			}
-		}
-		
-		// replay stream session configuration
-		//FileInputStream settingsFile=new FileInputStream(new File("/home/wes/projects/umdf-decoder/settings.cfg"));
-		// market data template
-		//FileInputStream templateSource = new FileInputStream("/home/wes/projects/umdf-decoder/templates-UMDF.xml");
-		FileInputStream templateSource=new FileInputStream(path);
+		// configuration path defaults to current directory/conf)
+		String configPath=System.getProperty("conf","conf/");
+		Ini prefs=new Ini(new File(configPath,"settings.cfg"));
+
+		// FAST templates
+		String templateFile=prefs.get("FAST").get("TemplateFile","templates-UMDF.xml");
+		FileInputStream templateSource=new FileInputStream(new File(configPath,templateFile));
 		MessageTemplateLoader templateLoader = new XMLMessageTemplateLoader();
-		MessageTemplate[] templates = templateLoader.load(templateSource);
+		templates = templateLoader.load(templateSource);
 		
-		FastInstrumentManager instruments=new FastInstrumentManager();
+		// FIX session
+		String sessionFile=prefs.get("FIX").get("ReplaySessionFile","replay_session.cfg");
+		FixReplaySession session=new FixReplaySession(new File(configPath,sessionFile));
 		
-		// parse feed parameters
-		for(int i=0;i<args.length;++i) {
-			if(args[i].equals("-t")) {
-				++i; continue;
+		for(Entry<String,Section> entry:prefs.entrySet()) {
+			if(!entry.getKey().equals("FAST") && !entry.getKey().equals("FIX")) {
+				Section channel=entry.getValue();
+				addFeed(channel.get("InstrumentDefinitionIP"),Integer.parseInt(channel.get("InstrumentDefinitionPort")),
+						channel.get("Name")+" Instrument Definition");
+				addFeed(channel.get("MarketRecoveryIP"),Integer.parseInt(channel.get("MarketRecoveryPort")),
+						channel.get("Name")+" Market Recovery");
+				addFeed(channel.get("IncrementalsIP"),Integer.parseInt(channel.get("IncrementalsPort")),
+						Integer.parseInt(channel.get("ChannelID")),
+						channel.get("SenderCompID"),channel.get("TargetCompID"),channel.get("BeginString"),
+						session,
+						channel.get("Name")+" Incrementals");
 			}
-			
-			String[] feed=args[i].split(":");
-			if(feed.length!=2) {
-				System.out.println("Invalid argument "+args[i]+"; should be ip:port");
-				return;
-			}
-			
-			String ip=feed[0];
-			int port=0;
-			try {
-				port=Integer.valueOf(feed[1]);
-			} catch(NumberFormatException e) {
-				System.out.println("Invalid argument: "+feed[1]+" is not a port");
-				return;
-			}
-			if(port>65535 || port<1) {
-				System.out.println("Invalid argument: "+feed[1]+" is not in the valid port range");
-				return;
-			}
-			
-			UmdfMessageAggregator aggregator=new UmdfMessageAggregator();
-			Context ctx=new Context();
-			for(MessageTemplate t:templates) {
-				ctx.registerTemplate(Integer.valueOf(t.getId()), t);
-			}
-			aggregator.addListener(new BvmfSession(instruments,ctx));
-			UmdfUdpQueue q=new UmdfUdpQueue();
-			q.listen(new MulticastPacketSource(ip,port));
-			aggregator.start(q,null);
 		}
 		
 		instruments.start();
 		
-		// instrument feed
-		/*UmdfFastMessageAggregator instrumentFeedAggregator=new UmdfFastMessageAggregator();
-		UmdfUdpQueue instrumentFeedUdp=new UmdfUdpQueue();
-		instrumentFeedUdp.listen(new MulticastPacketSource("233.111.180.112",10050));
-		//instrumentFeedAggregator.start(instrumentFeedUdp, new TestEmptyReplayStream(), ctx, instruments);
-		instrumentFeedAggregator.start(instrumentFeedUdp, new EmptyReplayStream(), ctx, instruments);
-		
-		// market snapshot feed
-		UmdfFastMessageAggregator snapshotAggregator=new UmdfFastMessageAggregator();
-		UmdfUdpQueue snapshotUdp=new UmdfUdpQueue();
-		snapshotUdp.listen(new MulticastPacketSource("233.111.180.112",30050));
-		snapshotAggregator.start(snapshotUdp, new EmptyReplayStream(), ctx, instruments);
-		
-		// market incremental feed
-		UmdfFastMessageAggregator incrementalAggregator=new UmdfFastMessageAggregator();
-		UmdfUdpQueue incrUdp=new UmdfUdpQueue();
-		incrUdp.listen(new MulticastPacketSource("233.111.180.113",20050));
-		incrementalAggregator.start(incrUdp, new EmptyReplayStream(), ctx, instruments);*/
-		
 		Console con=new Console();
 		con.run(instruments);
+	}
+	
+	private static UmdfMessageAggregator addFeed(String ip, int port,String debugName) throws Exception {
+		System.out.println("Adding "+ip+":"+port);
+		UmdfMessageAggregator aggregator=new UmdfMessageAggregator(debugName);
+		Context ctx=new Context();
+		for(MessageTemplate t:templates) {
+			ctx.registerTemplate(Integer.valueOf(t.getId()), t);
+		}
+		aggregator.addListener(new BvmfSession(instruments,ctx));
+		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
+		q.listen(new MulticastPacketSource(ip,port));
+		aggregator.start(q,null);
+		
+		return aggregator;
+	}
+	
+	private static UmdfMessageAggregator addFeed(String ip, int port,int channel,String sendID,String targetID,String beginStr,FixReplaySession session,String debugName) throws Exception {
+		System.out.println("Adding "+ip+":"+port);
+		UmdfMessageAggregator aggregator=new UmdfMessageAggregator(debugName);
+		Context ctx=new Context();
+		for(MessageTemplate t:templates) {
+			ctx.registerTemplate(Integer.valueOf(t.getId()), t);
+		}
+		aggregator.addListener(new BvmfSession(instruments,ctx));
+		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
+		q.listen(new MulticastPacketSource(ip,port));
+		
+		aggregator.start(q,new FixReplayStream(session,channel,sendID,targetID,beginStr,debugName));
+		
+		return aggregator;
 	}
 }

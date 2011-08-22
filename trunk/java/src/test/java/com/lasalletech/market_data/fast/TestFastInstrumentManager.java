@@ -71,9 +71,7 @@ public class TestFastInstrumentManager implements MarketData {
 							processMsg(updates.remove());
 						}
 					}
-					
-					//processQueue();
-				//} catch(InterruptedException e) {
+				} catch(InterruptedException e) {
 				} catch(Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -116,7 +114,7 @@ public class TestFastInstrumentManager implements MarketData {
 			TestFastInstrument inst=instruments.get(makeHash(grp));
 			if(inst!=null) inst.processIncremental(grp);
 			else {
-				newInstrument(makeHash(msg),msg).processIncremental(grp);
+				newInstrument(makeHash(grp),grp).processIncremental(grp);
 			}
 		}
 	}
