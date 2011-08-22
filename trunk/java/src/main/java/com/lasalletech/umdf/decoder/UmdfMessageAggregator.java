@@ -95,8 +95,13 @@ public class UmdfMessageAggregator {
 			
 			long timeDelta=System.currentTimeMillis()-lastRecvTime;
 			if(timeDelta>replayRequestTimeout) {
-				if(replayStream==null || (raw=replayStream.request(currentSeqnum))==null) {
-					// the packet has been dropped and we can't do much about it
+				if(replayStream==null) {
+					// packet has been dropped, just skip it
+					System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout on message "+currentSeqnum);
+					currentSeqnum++;
+					lastRecvTime=System.currentTimeMillis();
+				} else if((raw=replayStream.request(currentSeqnum))==null) {
+					// the packet has been dropped and the replay request failed somehow
 					System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout on message "+currentSeqnum);
 					throw new IOException();
 				} else {

@@ -1,28 +1,17 @@
 package com.lasalletech.umdf.decoder.fix_replay;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import quickfix.ApplicationAdapter;
-import quickfix.ConfigError;
-import quickfix.DefaultMessageFactory;
 import quickfix.FieldNotFound;
-import quickfix.FileLogFactory;
-import quickfix.FileStoreFactory;
 import quickfix.Group;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
-import quickfix.Initiator;
 import quickfix.Message;
 import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.ThreadedSocketInitiator;
 import quickfix.UnsupportedMessageType;
+import quickfix.field.BeginString;
 import quickfix.field.MsgType;
 import quickfix.field.RawData;
 import quickfix.field.RawDataLength;
@@ -41,14 +30,13 @@ import com.lasalletech.umdf.decoder.fix_replay.fix_custom.NoApplIDs;
 import com.lasalletech.umdf.decoder.fix_replay.fix_custom.NoApplSeqNums;
 import com.lasalletech.umdf.decoder.fix_replay.fix_custom.RawDataOffset;
 
-public class FixReplayStream extends ApplicationAdapter implements ReplayStream {
-	public FixReplayStream(File sessionSettings) throws ConfigError, FileNotFoundException {
-		SessionSettings settings=new SessionSettings(
-			new FileInputStream(sessionSettings));
-		Initiator initiator=new ThreadedSocketInitiator(this,
-			new FileStoreFactory(settings),settings,new FileLogFactory(settings),
-			new DefaultMessageFactory());
-		initiator.start();
+public class FixReplayStream implements ReplayStream {
+	public FixReplayStream(FixReplaySession mySession,int channel,String sendID,String targetID,String verStr) {
+		channelID=channel;
+		senderCompID=sendID;
+		targetCompID=targetID;
+		beginString=verStr;
+		mySession.addStream(targetID, this);
 	}
 	
 	private Map<Long,UmdfMessage> responses=new HashMap<Long,UmdfMessage>();
@@ -56,9 +44,9 @@ public class FixReplayStream extends ApplicationAdapter implements ReplayStream 
 
 	@Override
 	public UmdfMessage request(long seqnum) throws IOException {
+		System.out.println("[FixReplayStream.request]: Sending request for "+seqnum+" from channel "+channelID);
 		
 		try {
-			
 			// check to see if we already have this message
 			synchronized(responses) {
 				if(responses.containsKey(seqnum)) {
@@ -68,16 +56,17 @@ public class FixReplayStream extends ApplicationAdapter implements ReplayStream 
 		
 			Message msg=new Message();
 			msg.getHeader().setField(new MsgType(Messages.APPLMESSAGEREQUEST));
+			msg.getHeader().setField(new BeginString(beginString));
 			msg.setField(new ApplReqID(String.valueOf(seqnum)));
 			msg.setField(new ApplReqType(ApplReqType.RETRANSMISSION));
 			
 			NoApplIDs grp=new NoApplIDs();
-			grp.setField(new ApplChannelID(""));
+			grp.setField(new ApplChannelID(Integer.toString(channelID)));
 			grp.setField(new ApplBeginSeqNum((int)seqnum));
 			grp.setField(new ApplEndSeqNum((int)seqnum));
 			msg.addGroup(grp);
 			
-			Session.sendToTarget(msg, session);
+			Session.sendToTarget(msg, senderCompID,targetCompID);
 			
 			synchronized(waitQ) {
 				waitQ.put(seqnum, Thread.currentThread());
@@ -93,9 +82,8 @@ public class FixReplayStream extends ApplicationAdapter implements ReplayStream 
 			throw new IOException(e);
 		}
 	}
-
-	@Override
-	public void fromApp(Message message, SessionID sessionId)
+	
+	public void onMessage(Message message) 
 			throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue,
 			UnsupportedMessageType {
 		MsgType type=new MsgType();
@@ -126,6 +114,7 @@ public class FixReplayStream extends ApplicationAdapter implements ReplayStream 
 					responses.put(seqnum,UmdfMessages.replayMessage(data));
 				}
 				waitQ.get(seqnum).notify();
+				waitQ.remove(seqnum);
 			}
 			
 		} else if(type.valueEquals(Messages.APPLMESSAGEREPORT)) {
@@ -135,10 +124,9 @@ public class FixReplayStream extends ApplicationAdapter implements ReplayStream 
 		}
 	}
 	
-	private SessionID session=null;
+	private int channelID;
 	
-	@Override
-	public void onLogon(SessionID id) {
-		session=id;
-	}
+	private String targetCompID;
+	private String senderCompID;
+	private String beginString;
 }
