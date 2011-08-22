@@ -1,5 +1,4 @@
 #summary BVMF Spcifications
-#labels Featured
 
 = BVMF Trading platform =
 
