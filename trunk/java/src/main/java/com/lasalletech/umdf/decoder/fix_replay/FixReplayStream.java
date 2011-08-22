@@ -41,7 +41,7 @@ public class FixReplayStream implements ReplayStream {
 	}
 	
 	private Map<Long,UmdfMessage> responses=new HashMap<Long,UmdfMessage>();
-	private Map<Long,Thread> waitQ=new HashMap<Long,Thread>();
+	private Map<Long,FixReplayStream> waitQ=new HashMap<Long,FixReplayStream>();
 
 	@Override
 	public UmdfMessage request(long seqnum) throws IOException {
@@ -70,9 +70,9 @@ public class FixReplayStream implements ReplayStream {
 			Session.sendToTarget(msg, senderCompID,targetCompID);
 			
 			synchronized(waitQ) {
-				waitQ.put(seqnum, Thread.currentThread());
+				waitQ.put(seqnum, this);
 			}
-			Thread.currentThread().wait();
+			this.wait();
 			
 			synchronized(responses) {
 				return responses.remove(seqnum);
@@ -111,11 +111,18 @@ public class FixReplayStream implements ReplayStream {
 				System.arraycopy(rawBytes, offsetField.getValue(),
 									data, 0, lenField.getValue());
 				
+				System.out.println("[FixReplayStream.onMessage]: ("+debugName+") received data for message "+seqnum);
+				
 				synchronized(responses) {
 					responses.put(seqnum,UmdfMessages.replayMessage(data));
 				}
-				waitQ.get(seqnum).notify();
-				waitQ.remove(seqnum);
+				
+				// notify anyone that was waiting
+				FixReplayStream waitObj=waitQ.get(seqnum);
+				if(waitObj!=null) {
+					waitObj.notify();
+					waitQ.remove(seqnum);
+				}
 			}
 			
 		} else if(type.valueEquals(Messages.APPLMESSAGEREPORT)) {
