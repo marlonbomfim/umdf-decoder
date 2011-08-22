@@ -13,7 +13,7 @@ public class ChunkPacketStreamTest extends TestCase {
 		Vector<String> src=TestUtil.generateMessages(NUM_PACKETS);
 		Queue<String> out=new LinkedList<String>();
 		
-		UmdfUdpQueue q=new UmdfUdpQueue();
+		UmdfUdpQueue q=new UmdfUdpQueue("Test");
 		q.listen(new ChunkPacketSource(src));
 		
 		while(out.size()<NUM_PACKETS) {

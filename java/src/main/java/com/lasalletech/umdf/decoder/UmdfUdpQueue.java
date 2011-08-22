@@ -15,6 +15,9 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class UmdfUdpQueue {
+	public UmdfUdpQueue(String myName) {
+		debugName=myName;
+	}
 
 	public void listen(final PacketSource src) {
 		if(running) stop();
@@ -124,4 +127,6 @@ public class UmdfUdpQueue {
 	Semaphore outgoingSemaphore=new Semaphore(0);
 	
 	private static final int MAX_UDPPACKET_SIZE=1310;
+	
+	private String debugName;
 }

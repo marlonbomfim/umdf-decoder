@@ -108,7 +108,7 @@ public class FastInstrumentManager implements MarketData {
 			FastInstrument inst=instruments.get(makeHash(grp));
 			if(inst!=null) inst.processIncremental(grp);
 			else {
-				newInstrument(makeHash(msg),msg).processIncremental(grp);
+				newInstrument(makeHash(grp),grp).processIncremental(grp);
 			}
 		}
 	}

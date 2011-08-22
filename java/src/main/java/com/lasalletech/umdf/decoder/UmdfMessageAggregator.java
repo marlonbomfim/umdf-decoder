@@ -6,11 +6,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 
 public class UmdfMessageAggregator {
-	public UmdfMessageAggregator(long startSeqnum) {
+	public UmdfMessageAggregator(long startSeqnum,String myName) {
 		currentSeqnum=startSeqnum;
+		debugName=myName;
 	}
-	public UmdfMessageAggregator() {
+	public UmdfMessageAggregator(String myName) {
 		currentSeqnum=-1;
+		debugName=myName;
 	}
 	
 	private UmdfUdpQueue udpQ;
@@ -97,12 +99,12 @@ public class UmdfMessageAggregator {
 			if(timeDelta>replayRequestTimeout) {
 				if(replayStream==null) {
 					// packet has been dropped, just skip it
-					System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout on message "+currentSeqnum);
+					System.out.println("[UmdfMessageAggregator.processQueue]: Queue "+debugName+": Recv timeout on message "+currentSeqnum+"; skipping");
 					currentSeqnum++;
 					lastRecvTime=System.currentTimeMillis();
 				} else if((raw=replayStream.request(currentSeqnum))==null) {
 					// the packet has been dropped and the replay request failed somehow
-					System.out.println("[UmdfMessageAggregator.processQueue]: Recv timeout on message "+currentSeqnum);
+					System.out.println("[UmdfMessageAggregator.processQueue]: Queue "+debugName+": Recv timeout on message "+currentSeqnum+"; failed");
 					throw new IOException();
 				} else {
 					process(raw);
@@ -132,4 +134,6 @@ public class UmdfMessageAggregator {
 	private HashMap<Long,UmdfMessage> backlog=new HashMap<Long,UmdfMessage>();
 	
 	private Thread thread;
+	
+	private String debugName;
 }

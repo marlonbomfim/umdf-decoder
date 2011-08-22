@@ -95,7 +95,7 @@ public class TestFastInstrument implements Instrument {
 	private String id;
 	private String source;
 	private String exchange;
-	private String symbol;
+	private String symbol="";
 	
 	private TestFastOrderBook snapshotBook;
 	private TestFastOrderBook incrementalBook;

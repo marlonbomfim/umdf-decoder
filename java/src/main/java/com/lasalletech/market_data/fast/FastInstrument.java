@@ -95,7 +95,7 @@ public class FastInstrument implements Instrument {
 	private String id;
 	private String source;
 	private String exchange;
-	private String symbol;
+	private String symbol="";
 	
 	private FastOrderBook snapshotBook;
 	private FastOrderBook incrementalBook;

@@ -6,18 +6,18 @@ import org.openfast.Context;
 import org.openfast.Message;
 import org.openfast.codec.FastDecoder;
 
-import com.lasalletech.market_data.fast.FastInstrumentManager;
 import com.lasalletech.market_data.fast.FastUtil;
 import com.lasalletech.market_data.fast.Fields;
 import com.lasalletech.market_data.fast.Messages;
+import com.lasalletech.market_data.fast.TestFastInstrumentManager;
 import com.lasalletech.umdf.decoder.UmdfMessage;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfMessageListener;
 
 public class BvmfSession implements UmdfMessageListener {
-	private FastInstrumentManager link;
+	private TestFastInstrumentManager link;
 	private Context context;
-	public BvmfSession(FastInstrumentManager mgr, Context ctx) {
+	public BvmfSession(TestFastInstrumentManager mgr, Context ctx) {
 		link=mgr;
 		context=ctx;
 	}

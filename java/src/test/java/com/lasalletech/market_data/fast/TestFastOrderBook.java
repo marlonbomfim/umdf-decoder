@@ -289,8 +289,4 @@ public class TestFastOrderBook implements OrderBook {
 	public List<String> getLog() {
 		return log;
 	}
-	private void flushLog() {
-		log.clear();
-	}
-
 }
