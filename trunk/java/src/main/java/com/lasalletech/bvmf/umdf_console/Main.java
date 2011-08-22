@@ -11,7 +11,7 @@ import org.openfast.template.MessageTemplate;
 import org.openfast.template.loader.MessageTemplateLoader;
 import org.openfast.template.loader.XMLMessageTemplateLoader;
 
-import com.lasalletech.market_data.fast.TestFastInstrumentManager;
+import com.lasalletech.market_data.fast.FastInstrumentManager;
 import com.lasalletech.umdf.decoder.MulticastPacketSource;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfUdpQueue;
@@ -20,7 +20,7 @@ import com.lasalletech.umdf.decoder.fix_replay.FixReplayStream;
 
 public class Main {
 	private static MessageTemplate[] templates=null;
-	private static TestFastInstrumentManager instruments=new TestFastInstrumentManager();
+	private static FastInstrumentManager instruments=new FastInstrumentManager();
 	public static void main(String[] args) throws Exception {
 		
 		// configuration path defaults to current directory/conf)
