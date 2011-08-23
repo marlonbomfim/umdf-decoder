@@ -89,3 +89,5 @@ BeginString=FIXT.1.1
 
   * _Run Application_
   By default, the application looks in the current working directory under conf/ for its configuration files.  You can override this by setting the `conf` system property when executing the JVM (e.g., `-Dconf=/home/fred/bvmf-conf`)
+
+  To set this value in Eclipse, go to Run -> Run Configurations... and create a new configuration for the bvmf.umdf_console.Main class if needed.  Under the Arguments tab, add -Dconf=whatever to the VM arguments box.
