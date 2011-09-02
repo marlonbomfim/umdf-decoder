@@ -63,11 +63,17 @@ public class FastInstrument implements Instrument {
 		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
 			if(testLastSeqnum==grp.getLong(Fields.LASTMSGSEQNUMPROCESSED)) {
 				System.out.println("[FastInstrument.process]: ("+debugName+") Duplicate snapshot received");
-				String thisMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
-				System.out.println(testLastMsg+"\n"+thisMsg);
+				//String thisMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
+				
+				//duplicateFixMsgs.println(testLastMsg);
+				//duplicateFixMsgs.println(FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000"));
+				//duplicateFixMsgs.flush();
+				
+				//System.out.println(testLastMsg+"\n"+thisMsg);
+			} else {
+				testLastSeqnum=grp.getLong(Fields.LASTMSGSEQNUMPROCESSED);
+				testLastMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
 			}
-			testLastSeqnum=grp.getLong(Fields.LASTMSGSEQNUMPROCESSED);
-			testLastMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
 			snapshotBook.processSnapshot(grp);
 			if(incrementalBook.getSeqnum()==-1) {
 				incrementalBook.processSnapshot(grp);

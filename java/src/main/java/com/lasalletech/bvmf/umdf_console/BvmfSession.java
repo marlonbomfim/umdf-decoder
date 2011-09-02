@@ -1,6 +1,10 @@
 package com.lasalletech.bvmf.umdf_console;
 
 import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import org.openfast.Context;
 import org.openfast.Message;
@@ -16,9 +20,13 @@ import com.lasalletech.umdf.decoder.UmdfMessageListener;
 public class BvmfSession implements UmdfMessageListener {
 	private FastInstrumentManager link;
 	private Context context;
-	public BvmfSession(FastInstrumentManager mgr, Context ctx) {
+	private String debugName;
+	private PrintWriter log;
+	public BvmfSession(FastInstrumentManager mgr, Context ctx,String myName) throws FileNotFoundException {
 		link=mgr;
 		context=ctx;
+		debugName=myName;
+		log=new PrintWriter(debugName+"-"+System.currentTimeMillis()+".messages.log");
 	}
 
 	@Override
@@ -27,6 +35,12 @@ public class BvmfSession implements UmdfMessageListener {
 		ctx.setTemplateRegistry(context.getTemplateRegistry());
 		FastDecoder decoder=new FastDecoder(ctx,new ByteArrayInputStream(message));
 		Message msg=decoder.readMessage();
+		
+		SimpleDateFormat fmt=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+		
+		log.println(fmt.format(Calendar.getInstance().getTime())+" "
+					+FastUtil.fastMsgToFixString(msg, "FIXT.1.1", "000")
+					+" ["+new String(message)+"]");
 		
 		try {
 		

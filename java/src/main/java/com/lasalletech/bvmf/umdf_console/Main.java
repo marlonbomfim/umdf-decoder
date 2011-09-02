@@ -65,7 +65,7 @@ public class Main {
 		for(MessageTemplate t:templates) {
 			ctx.registerTemplate(Integer.valueOf(t.getId()), t);
 		}
-		aggregator.addListener(new BvmfSession(instruments,ctx));
+		aggregator.addListener(new BvmfSession(instruments,ctx,debugName));
 		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
 		q.listen(new MulticastPacketSource(ip,port));
 		aggregator.start(q,null,10000);
@@ -79,9 +79,9 @@ public class Main {
 		for(MessageTemplate t:templates) {
 			ctx.registerTemplate(Integer.valueOf(t.getId()), t);
 		}
-		aggregator.addListener(new BvmfSession(instruments,ctx));
+		aggregator.addListener(new BvmfSession(instruments,ctx,debugName));
 		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
-		q.listen(new LossyPacketSource(new MulticastPacketSource(ip,port),0.75));
+		q.listen(/*new LossyPacketSource(*/new MulticastPacketSource(ip,port)/*,0.75)*/);
 		
 		aggregator.start(q,new FixReplayStream(session,channel,targetID,debugName),10000);
 		
