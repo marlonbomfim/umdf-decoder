@@ -64,8 +64,6 @@ public class FastInstrumentManager implements MarketData {
 						}
 					}
 					
-					//processQueue();
-				//} catch(InterruptedException e) {
 				} catch(Exception e) {
 					e.printStackTrace();
 				} finally {

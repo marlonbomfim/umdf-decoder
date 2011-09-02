@@ -10,7 +10,6 @@ import com.lasalletech.market_data.fast.FastUtil;
 import com.lasalletech.market_data.fast.Fields;
 import com.lasalletech.market_data.fast.Messages;
 import com.lasalletech.market_data.fast.FastInstrumentManager;
-import com.lasalletech.umdf.decoder.UmdfMessage;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfMessageListener;
 
@@ -23,8 +22,10 @@ public class BvmfSession implements UmdfMessageListener {
 	}
 
 	@Override
-	public void onMessage(UmdfMessage message, UmdfMessageAggregator source) {
-		FastDecoder decoder=new FastDecoder(context,new ByteArrayInputStream(message.getData()));
+	public void onMessage(byte[] message, UmdfMessageAggregator source) {
+		Context ctx = new Context();
+		ctx.setTemplateRegistry(context.getTemplateRegistry());
+		FastDecoder decoder=new FastDecoder(ctx,new ByteArrayInputStream(message));
 		Message msg=decoder.readMessage();
 		
 		try {

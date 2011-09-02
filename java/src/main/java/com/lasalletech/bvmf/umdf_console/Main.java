@@ -12,6 +12,7 @@ import org.openfast.template.loader.MessageTemplateLoader;
 import org.openfast.template.loader.XMLMessageTemplateLoader;
 
 import com.lasalletech.market_data.fast.FastInstrumentManager;
+import com.lasalletech.umdf.decoder.LossyPacketSource;
 import com.lasalletech.umdf.decoder.MulticastPacketSource;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfUdpQueue;
@@ -45,8 +46,8 @@ public class Main {
 				addFeed(channel.get("MarketRecoveryIP"),Integer.parseInt(channel.get("MarketRecoveryPort")),
 						channel.get("Name")+" Market Recovery");
 				addFeed(channel.get("IncrementalsIP"),Integer.parseInt(channel.get("IncrementalsPort")),
-						Integer.parseInt(channel.get("ChannelID")),
-						channel.get("SenderCompID"),channel.get("TargetCompID"),channel.get("BeginString"),
+						channel.get("ChannelID"),
+						channel.get("TargetCompID"),
 						session,
 						channel.get("Name")+" Incrementals");
 			}
@@ -59,7 +60,6 @@ public class Main {
 	}
 	
 	private static UmdfMessageAggregator addFeed(String ip, int port,String debugName) throws Exception {
-		System.out.println("Adding "+ip+":"+port);
 		UmdfMessageAggregator aggregator=new UmdfMessageAggregator(debugName);
 		Context ctx=new Context();
 		for(MessageTemplate t:templates) {
@@ -68,13 +68,12 @@ public class Main {
 		aggregator.addListener(new BvmfSession(instruments,ctx));
 		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
 		q.listen(new MulticastPacketSource(ip,port));
-		aggregator.start(q,null);
+		aggregator.start(q,null,10000);
 		
 		return aggregator;
 	}
 	
-	private static UmdfMessageAggregator addFeed(String ip, int port,int channel,String sendID,String targetID,String beginStr,FixReplaySession session,String debugName) throws Exception {
-		System.out.println("Adding "+ip+":"+port);
+	private static UmdfMessageAggregator addFeed(String ip, int port,String channel,String targetID,FixReplaySession session,String debugName) throws Exception {
 		UmdfMessageAggregator aggregator=new UmdfMessageAggregator(debugName);
 		Context ctx=new Context();
 		for(MessageTemplate t:templates) {
@@ -82,9 +81,9 @@ public class Main {
 		}
 		aggregator.addListener(new BvmfSession(instruments,ctx));
 		UmdfUdpQueue q=new UmdfUdpQueue(debugName);
-		q.listen(new MulticastPacketSource(ip,port));
+		q.listen(new LossyPacketSource(new MulticastPacketSource(ip,port),0.75));
 		
-		aggregator.start(q,new FixReplayStream(session,channel,sendID,targetID,beginStr,debugName));
+		aggregator.start(q,new FixReplayStream(session,channel,targetID,debugName),10000);
 		
 		return aggregator;
 	}

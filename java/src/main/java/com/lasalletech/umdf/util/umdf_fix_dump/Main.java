@@ -25,54 +25,61 @@ import com.lasalletech.umdf.decoder.UmdfUdpQueue;
 
 public class Main {
 	public static void main(String[] args) throws Exception {
-		if(args.length!=3 &&args.length!=4) {
-			System.out.println("Usage: umdf-fix-dump host port FAST_template_path [output_file_path]");
-			return;
-		}
-		
-		String host=args[0];
-		int port=Integer.valueOf(args[1]);
-		String templateFile=args[2];
-		
-		String outFile=host+":"+port+"-"+System.currentTimeMillis()+".fix";
-		if(args.length==4) {
-			outFile=args[3];
-		}
-		
-		File outputFileObj=new File(outFile);
-		//System.out.println(outputFileObj.getCanonicalPath());
-		PrintStream output=new PrintStream(outputFileObj);
-		
-		FileInputStream templateSource=new FileInputStream(new File(templateFile));
-		MessageTemplateLoader templateLoader = new XMLMessageTemplateLoader();
-		MessageTemplate[] templates = templateLoader.load(templateSource);
-		
-		Context ctx=new Context();
-		for(MessageTemplate t:templates) {
-			ctx.registerTemplate(Integer.valueOf(t.getId()), t);
-		}
-		
-		UmdfUdpQueue queue=new UmdfUdpQueue("umdf_fix_dump");
-		queue.listen(new MulticastPacketSource(host,port));
-		
-		while(true) {
-			UmdfMessage umsg=queue.read();
-			FastDecoder decoder=new FastDecoder(ctx,new ByteArrayInputStream(umsg.getData()));
-			Message msg=decoder.readMessage();
+		try {
+			if(args.length!=3 &&args.length!=4) {
+				System.out.println("Usage: umdf-fix-dump host port FAST_template_path [output_file_path]");
+				return;
+			}
 			
-			// preamble
-			output.print("8=FIX.4.4"+SEPARATOR+"9=");
-
-			// message body
-			String outStr=writeGroup(msg);
+			String host=args[0];
+			int port=Integer.valueOf(args[1]);
+			String templateFile=args[2];
 			
-			// message length
-			output.print(String.valueOf(outStr.length())+SEPARATOR);
+			String outFile=host+":"+port+"-"+System.currentTimeMillis()+".fix";
+			if(args.length==4) {
+				outFile=args[3];
+			}
 			
-			// actual body and checksum
-			output.print(outStr+SEPARATOR+"10=000"+SEPARATOR);
+			PrintStream output=System.out;
+			if(!outFile.equals("-")) {
+				File outputFileObj=new File(outFile);
+				output=new PrintStream(outputFileObj);
+			}
 			
-			output.println();
+			FileInputStream templateSource=new FileInputStream(new File(templateFile));
+			MessageTemplateLoader templateLoader = new XMLMessageTemplateLoader();
+			MessageTemplate[] templates = templateLoader.load(templateSource);
+			
+			Context ctx=new Context();
+			for(MessageTemplate t:templates) {
+				ctx.registerTemplate(Integer.valueOf(t.getId()), t);
+			}
+			
+			UmdfUdpQueue queue=new UmdfUdpQueue("umdf_fix_dump");
+			queue.listen(new MulticastPacketSource(host,port));
+			
+			while(true) {
+				UmdfMessage umsg=queue.read();
+				FastDecoder decoder=new FastDecoder(ctx,new ByteArrayInputStream(umsg.getData()));
+				Message msg=decoder.readMessage();
+				
+				// preamble
+				output.print("8=FIX.4.4"+SEPARATOR+"9=");
+	
+				// message body
+				String outStr=writeGroup(msg);
+				
+				// message length
+				output.print(String.valueOf(outStr.length())+SEPARATOR);
+				
+				// actual body and checksum
+				output.print(outStr+SEPARATOR+"10=000"+SEPARATOR);
+				
+				output.println();
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
 		}
 	}
 	

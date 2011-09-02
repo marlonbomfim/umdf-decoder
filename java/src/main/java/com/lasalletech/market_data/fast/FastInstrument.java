@@ -9,14 +9,17 @@ import com.lasalletech.market_data.fast.error.InvalidFieldValue;
 import com.lasalletech.market_data.fast.error.UnsupportedMessageType;
 
 public class FastInstrument implements Instrument {
+	
+	private String debugName;
 
 	public FastInstrument(GroupValue grp,FastInstrumentManager mgr)
 			throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		snapshotBook=new FastOrderBook(this);
-		incrementalBook=new FastOrderBook(this);
 		id=FastUtil.getString(grp, Fields.SECURITYID);
 		source=FastUtil.getString(grp, Fields.SECURITYIDSOURCE);
 		exchange=FastUtil.getString(grp,Fields.SECURITYEXCHANGE, "(none)");
+		debugName=id+":"+source;
+		snapshotBook=new FastOrderBook(this,debugName+" Snapshot Book");
+		incrementalBook=new FastOrderBook(this,debugName+" Incremental Book");
 	}
 
 	@Override
@@ -58,6 +61,13 @@ public class FastInstrument implements Instrument {
 		if(type.equals(Messages.SECURITYSTATUS)) {
 			//TODO: implement
 		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
+			if(testLastSeqnum==grp.getLong(Fields.LASTMSGSEQNUMPROCESSED)) {
+				System.out.println("[FastInstrument.process]: ("+debugName+") Duplicate snapshot received");
+				String thisMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
+				System.out.println(testLastMsg+"\n"+thisMsg);
+			}
+			testLastSeqnum=grp.getLong(Fields.LASTMSGSEQNUMPROCESSED);
+			testLastMsg=FastUtil.fastMsgToFixString(grp, "FIXT.1.1", "000");
 			snapshotBook.processSnapshot(grp);
 			if(incrementalBook.getSeqnum()==-1) {
 				incrementalBook.processSnapshot(grp);
@@ -91,6 +101,9 @@ public class FastInstrument implements Instrument {
 			}
 		}
 	}
+	
+	private long testLastSeqnum=-1;
+	private String testLastMsg=new String();
 
 	private String id;
 	private String source;

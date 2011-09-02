@@ -85,6 +85,7 @@ public class UmdfUdpQueue {
 	private void processPacket(DatagramPacket p) throws IOException {
 		UmdfPacket packet=new UmdfPacket(p);
 		long seqnum=packet.getMsgSeqNum();
+		//System.out.println(debugName+": got packet with seqnum="+seqnum);
 		
 		if(incoming.containsKey(seqnum)) {
 			UmdfMessage msg=incoming.get(seqnum);
@@ -107,6 +108,7 @@ public class UmdfUdpQueue {
 		while(i.hasNext()) {
 			Long cur=i.next();
 			UmdfMessage msg=incoming.get(cur);
+			//System.out.println(msg.getMsgSeqNum());
 			if(msg.isComplete()) {
 				//System.out.println("Completed "+new String(msg.getData()));
 				synchronized(outgoing) {

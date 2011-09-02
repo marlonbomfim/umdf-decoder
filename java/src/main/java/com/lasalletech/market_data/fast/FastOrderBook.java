@@ -49,8 +49,11 @@ public class FastOrderBook implements OrderBook {
 	
 	private int lastRptSeqnum=-1;
 	
-	public FastOrderBook(FastInstrument inParent) {
+	private String debugName;
+	
+	public FastOrderBook(FastInstrument inParent,String myName) {
 		instrument=inParent;
+		debugName=myName;
 	}
 	
 	public int getSeqnum() { return lastRptSeqnum; }
@@ -58,6 +61,11 @@ public class FastOrderBook implements OrderBook {
 	public void processSnapshot(GroupValue msg) throws FieldNotFound, InvalidFieldValue {
 		int seq=FastUtil.getInt(msg, Fields.LASTMSGSEQNUMPROCESSED);
 		if(seq<lastRptSeqnum) return;
+		if(seq==lastRptSeqnum) {
+			// we have already processed this snapshot
+			System.out.println("[FastOrderBook.processSnapshot]: ("+debugName+") Skipping snapshot, already processed");
+			return;
+		}
 		lastRptSeqnum=seq;
 		
 		//flushLog();
