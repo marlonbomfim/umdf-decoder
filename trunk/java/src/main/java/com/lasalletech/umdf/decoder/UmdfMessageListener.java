@@ -1,5 +1,5 @@
 package com.lasalletech.umdf.decoder;
 
 public interface UmdfMessageListener {
-	public void onMessage(UmdfMessage message, UmdfMessageAggregator source);
+	public void onMessage(byte[] message, UmdfMessageAggregator source);
 }

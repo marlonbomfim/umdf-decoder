@@ -9,7 +9,6 @@ import org.openfast.codec.FastDecoder;
 import com.lasalletech.market_data.fast.FastUtil;
 import com.lasalletech.market_data.fast.Fields;
 import com.lasalletech.market_data.fast.Messages;
-import com.lasalletech.umdf.decoder.UmdfMessage;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfMessageListener;
 
@@ -22,8 +21,8 @@ public class OutputListener implements UmdfMessageListener {
 	}
 
 	@Override
-	public void onMessage(UmdfMessage message, UmdfMessageAggregator source) {
-		FastDecoder decoder=new FastDecoder(context,new ByteArrayInputStream(message.getData()));
+	public void onMessage(byte[] message, UmdfMessageAggregator source) {
+		FastDecoder decoder=new FastDecoder(context,new ByteArrayInputStream(message));
 		Message msg=decoder.readMessage();
 		
 		try {

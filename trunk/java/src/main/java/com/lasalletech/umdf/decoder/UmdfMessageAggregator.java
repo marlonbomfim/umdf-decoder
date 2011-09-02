@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.concurrent.TimeUnit;
 
 public class UmdfMessageAggregator {
 	public UmdfMessageAggregator(long startSeqnum,String myName) {
@@ -75,46 +76,51 @@ public class UmdfMessageAggregator {
 			
 			// try to process any backed-up messages
 			while(backlog.containsKey(currentSeqnum)) {
-				process(backlog.remove(currentSeqnum));
+				process(backlog.remove(currentSeqnum).getData());
 				lastRecvTime=System.currentTimeMillis();
 			}
 			
 			// deal with a new message
-			raw=udpQ.read();
+			raw=udpQ.read(replayRequestTimeout,TimeUnit.MILLISECONDS);
+			if(raw!=null) {
 			
-			// set our seqnum if we haven't already
-			if(currentSeqnum<0) currentSeqnum=raw.getMsgSeqNum();
-			
-			if(raw.getMsgSeqNum()==currentSeqnum) {
-				process(raw);
-				lastRecvTime=System.currentTimeMillis();
-			} else if(raw.getMsgSeqNum()>currentSeqnum) {
-				// out-of-order packet, deal with it when we get there
-				backlog.put(raw.getMsgSeqNum(), raw);
+				// set our seqnum if we haven't already
+				if(currentSeqnum<0) currentSeqnum=raw.getMsgSeqNum();
+				
+				if(raw.getMsgSeqNum()==currentSeqnum) {
+					process(raw.getData());
+					lastRecvTime=System.currentTimeMillis();
+				} else if(raw.getMsgSeqNum()>currentSeqnum) {
+					// out-of-order packet, deal with it when we get there
+					backlog.put(raw.getMsgSeqNum(), raw);
+				} else {
+					// dropping the packet because it is too old
+				}
 			} else {
-				// dropping the packet because it is too old
+				if(currentSeqnum==-1) continue;
 			}
 			
 			long timeDelta=System.currentTimeMillis()-lastRecvTime;
 			if(timeDelta>replayRequestTimeout) {
+				byte[] rawBytes=null;
 				if(replayStream==null) {
 					// packet has been dropped, just skip it
-					System.out.println("[UmdfMessageAggregator.processQueue]: Queue "+debugName+": Recv timeout on message "+currentSeqnum+"; skipping");
+					System.out.println("[UmdfMessageAggregator.processQueue]: ("+debugName+") Recv timeout on message "+currentSeqnum+"; skipping");
 					currentSeqnum++;
 					lastRecvTime=System.currentTimeMillis();
-				} else if((raw=replayStream.request(currentSeqnum))==null) {
+				} else if((rawBytes=replayStream.request(currentSeqnum))==null) {
 					// the packet has been dropped and the replay request failed somehow
-					System.out.println("[UmdfMessageAggregator.processQueue]: Queue "+debugName+": Recv timeout on message "+currentSeqnum+"; failed");
+					System.out.println("[UmdfMessageAggregator.processQueue]: ("+debugName+") Recv timeout on message "+currentSeqnum+"; failed");
 					throw new IOException();
 				} else {
-					process(raw);
+					process(rawBytes);
 					lastRecvTime=System.currentTimeMillis();
 				}
 			}
 		}
 	}
 	
-	private void process(UmdfMessage raw) {
+	private void process(byte[] raw) {
 		
 		// it is important to do this before any processing so that a processor function
 		// can call reset() and expect it to do the right thing
@@ -127,7 +133,7 @@ public class UmdfMessageAggregator {
 	
 	private long currentSeqnum;
 	
-	private static final int DEFAULT_REPLAY_TIMEOUT=1000;
+	private static final int DEFAULT_REPLAY_TIMEOUT=10000;
 	private int replayRequestTimeout=0;
 	private ReplayStream replayStream=null;
 	
