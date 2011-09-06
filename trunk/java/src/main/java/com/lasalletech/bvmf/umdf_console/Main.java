@@ -12,7 +12,6 @@ import org.openfast.template.loader.MessageTemplateLoader;
 import org.openfast.template.loader.XMLMessageTemplateLoader;
 
 import com.lasalletech.market_data.fast.FastInstrumentManager;
-import com.lasalletech.umdf.decoder.LossyPacketSource;
 import com.lasalletech.umdf.decoder.MulticastPacketSource;
 import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfUdpQueue;

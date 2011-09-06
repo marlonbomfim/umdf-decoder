@@ -60,12 +60,12 @@ public class FastOrderBook implements OrderBook {
 	
 	public void processSnapshot(GroupValue msg) throws FieldNotFound, InvalidFieldValue {
 		int seq=FastUtil.getInt(msg, Fields.LASTMSGSEQNUMPROCESSED);
-		if(seq<lastRptSeqnum) return;
-		if(seq==lastRptSeqnum) {
+		if(seq<=lastRptSeqnum) return; // skip older snapshots or duplicates
+		/*if(seq==lastRptSeqnum) {
 			// we have already processed this snapshot
 			System.out.println("[FastOrderBook.processSnapshot]: ("+debugName+") Skipping snapshot, already processed");
 			return;
-		}
+		}*/
 		lastRptSeqnum=seq;
 		
 		//flushLog();
