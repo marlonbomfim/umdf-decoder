@@ -20,6 +20,8 @@ public:
   int num_chunks() const { return hdr_num_chunks; }
   int num_curr_chunks() const { return packets.size(); }
 
+  int size() const { return total_size; }
+
   bool complete() const {
     return static_cast<int>(packets.size())==hdr_num_chunks;
   }
