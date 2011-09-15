@@ -25,8 +25,7 @@ public:
   Aggregator();
   //typedef std::function<void(Message,Aggregator&> callback_type;
   typedef boost::function<void(Message,Aggregator&)> callback_type;
-  int add_listener(callback_type f) { hooks.push_back(f); return hooks.size(); }
-  void remove_listener(int n) { hooks.erase(hooks.begin()+n); }
+  void add_listener(callback_type f) { hooks.push_back(f); }
 
   void start(UdpQueue& q);
   void stop();
