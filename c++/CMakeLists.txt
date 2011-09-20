@@ -45,6 +45,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 # subprojects
 add_subdirectory("src/umdf_decoder")
-add_subdirectory("src/market_data")
+#add_subdirectory("src/market_data")
+add_subdirectory("src/market_data/fast")
 add_subdirectory("src/bvmf/umdf_console")
 

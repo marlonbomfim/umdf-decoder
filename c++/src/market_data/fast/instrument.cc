@@ -6,13 +6,13 @@
 
 #include "instrument.h"
 
-using std::string;
-
-using QuickFAST::Messages::MessageAccessor;
-
 #include "fast_errors.h"
 #include "fast_util.h"
 #include "fast_protocol.h"
+
+using std::string;
+
+using QuickFAST::Messages::MessageAccessor;
 
 FastInstrument::FastInstrument(MessageAccessor& info) : order_book(*this) {
   sec_id=get_string(info,fields::kSecurityID);
@@ -40,3 +40,4 @@ void FastInstrument::process(MessageAccessor& msg) {
 void FastInstrument::process_incremental(MessageAccessor& msg) {
   order_book.process_incremental(msg);
 }
+

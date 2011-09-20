@@ -4,14 +4,14 @@
   longdesc
 */
 
-#ifndef INSTRUMENT_H_
-#define INSTRUMENT_H_ 1
+#ifndef MARKET_DATA_FAST_INSTRUMENT_H_
+#define MARKET_DATA_FAST_INSTRUMENT_H_ 1
 
 #include <string>
 
-#include <quickfast/Messages/MessageAccessor.h>
-
 #include "market_data/instrument.h"
+
+#include "quickfast.h"
 
 class FastInstrument : public Instrument {
 public:
@@ -37,5 +37,5 @@ private:
   std::string sec_id,sec_source,sec_exchange,str_symbol;
 };
 
-#endif // INSTRUMENT_H_
+#endif // MARKET_DATA_FAST_INSTRUMENT_H_
 

@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef ORDER_ENTRY_H_
-#define ORDER_ENTRY_H_ 1
+#ifndef MARKET_DATA_ORDER_ENTRY_H_
+#define MARKET_DATA_ORDER_ENTRY_H_ 1
 
 #include <string>
 
@@ -24,5 +24,5 @@ struct OrderEntry {
   virtual boost::posix_time::ptime date() const=0;
 };
 
-#endif // ORDER_ENTRY_H_
+#endif // MARKET_DATA_ORDER_ENTRY_H_
 

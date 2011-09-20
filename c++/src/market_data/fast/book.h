@@ -4,21 +4,21 @@
   longdesc
 */
 
-#ifndef BOOK_H_
-#define BOOK_H_ 1
+#ifndef MARKET_DATA_FAST_BOOK_H_
+#define MARKET_DATA_FAST_BOOK_H_ 1
 
 #include <vector>
+#include <list>
 #include <string>
 #include <queue>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include <quickfast/Messages/MessageAccessor.h>
-#include <quickfast/Messages/FieldSet.h>
-
 #include "market_data/book.h"
+
 #include "order_entry.h"
+#include "quickfast.h"
 
 class FastInstrument;
 
@@ -30,12 +30,10 @@ public:
   virtual boost::weak_ptr<OrderEntry> top_bid() const;
   virtual boost::weak_ptr<OrderEntry> top_offer() const;
 
-  virtual std::size_t bid_count() const;
-  virtual std::size_t offer_count() const;
+  virtual std::size_t bids_count() const;
+  virtual std::size_t offers_count() const;
 
-  FastBook(
-    const QuickFAST::Messages::MessageAccessor& info,
-    FastInstrument& in_instrument);
+  FastBook(FastInstrument& in_instrument);
 
   void process_incremental(const QuickFAST::Messages::MessageAccessor& grp);
   void process_snapshot(const QuickFAST::Messages::MessageAccessor& grp);
@@ -77,15 +75,16 @@ private:
     EntryQueue& q,
     const QuickFAST::Messages::MessageAccessor& grp);
 
-  static const char* kBid="0";
-  static const char* kOffer="1";
+  static const char* kBid;
+  static const char* kOffer;
 
-  static const char* kNew="0";
-  static const char* kChange="1";
-  static const char* kDelete="2";
-  static const char* kDeleteThru="3";
-  static const char* kDeleteFrom="4";
-  static const char* kOverlay="5";
+  static const char* kNew;
+  static const char* kChange;
+  static const char* kDelete;
+  static const char* kDeleteThru;
+  static const char* kDeleteFrom;
+  static const char* kOverlay;
 };
 
-#endif // BOOK_H_
+#endif // MARKET_DATA_FAST_BOOK_H_
+

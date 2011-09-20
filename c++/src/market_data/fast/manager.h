@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef MANAGER_H_
-#define MANAGER_H_ 1
+#ifndef MARKET_DATA_FAST_MANAGER_H_
+#define MARKET_DATA_FAST_MANAGER_H_ 1
 
 #include <map>
 #include <string>
@@ -16,11 +16,10 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include <quickfast/Messages/Message.h>
-#include <quickfast/Messages/MessageAccessor.h>
-
 #include "market_data/market_data.h"
-#include "maret_data/fast/instrument.h"
+#include "market_data/fast/instrument.h"
+
+#include "quickfast.h"
 
 class FastMarketDataManager : public MarketData {
 public:
@@ -62,4 +61,5 @@ private:
   FastInstrument& new_instrument(const QuickFAST::Messages::MessageAccessor& msg);
 };
 
-#endif // MANAGER_H_
+#endif // MARKET_DATA_FAST_MANAGER_H_
+

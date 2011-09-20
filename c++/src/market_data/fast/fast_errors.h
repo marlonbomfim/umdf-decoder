@@ -4,13 +4,13 @@
   longdesc
 */
 
-#ifndef FAST_ERRORS_H_
-#define FAST_ERRORS_H_ 1
+#ifndef MARKET_DATA_FAST_FAST_ERRORS_H_
+#define MARKET_DATA_FAST_FAST_ERRORS_H_ 1
 
 #include <boost/exception/all.hpp>
 
 class BaseFastException :
-    virtual std::exception, virtual boost::exception {};
+    virtual public std::exception, virtual public boost::exception {};
 
 class UnknownFastMessageType : virtual public BaseFastException {};
 class UnknownFastTag : virtual public BaseFastException {};
@@ -23,5 +23,5 @@ typedef boost::error_info<struct tag_errinfo_messagetype,std::string>
 typedef boost::error_info<struct tag_errinfo_tagname,std::string>
   FastTagName;
 
-#endif // FAST_ERRORS_H_
+#endif // MARKET_DATA_FAST_FAST_ERRORS_H_
 

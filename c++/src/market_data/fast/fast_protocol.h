@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef FAST_PROTOCOL_H_
-#define FAST_PROTOCOL_H_ 1
+#ifndef MARKET_DATA_FAST_FAST_PROTOCOL_H_
+#define MARKET_DATA_FAST_FAST_PROTOCOL_H_ 1
 
 namespace messages {
 
@@ -64,4 +64,5 @@ const char* kPos="MDEntryPositionNo";
 
 } // end namespace fields
 
-#endif // FAST_PROTOCOL_H_
+#endif // MARKET_DATA_FAST_FAST_PROTOCOL_H_
+

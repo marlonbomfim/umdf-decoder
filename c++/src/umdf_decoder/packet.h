@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef PACKET_H_
-#define PACKET_H_ 1
+#ifndef UMDF_DECODER_PACKET_H_
+#define UMDF_DECODER_PACKET_H_ 1
 
 #include <utility>
 
@@ -48,5 +48,5 @@ private:
   int hdr_num_chunks;
 };
 
-#endif // PACKET_H_
+#endif // UMDF_DECODER_PACKET_H_
 

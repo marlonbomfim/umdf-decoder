@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef AGGREGATOR_H_
-#define AGGREGATOR_H_ 1
+#ifndef UMDF_DECODER_AGGREGATOR_H_
+#define UMDF_DECODER_AGGREGATOR_H_ 1
 
 #include <vector>
 //#include <functional>
@@ -53,4 +53,4 @@ private:
   static void thread_helper(Aggregator*,UdpQueue*);
 };
 
-#endif // AGGREGATOR_H_
+#endif // UMDF_DECODER_AGGREGATOR_H_

@@ -10,8 +10,6 @@
 
 #include <boost/bind.hpp>
 
-#include <quickfast/Messages/Message.h>
-
 #include "fast_util.h"
 #include "fast_protocol.h"
 
@@ -19,6 +17,7 @@ using std::string;
 using std::vector;
 using std::find_if;
 using std::sort;
+using std::list;
 
 using boost::bind;
 using boost::shared_ptr;
@@ -27,25 +26,34 @@ using boost::weak_ptr;
 using QuickFAST::Messages::MessageAccessor;
 using QuickFAST::Messages::Message;
 
+const char* FastBook::kBid="0";
+const char* FastBook::kOffer="1";
+const char* FastBook::kNew="0";
+const char* FastBook::kChange="1";
+const char* FastBook::kDelete="2";
+const char* FastBook::kDeleteThru="3";
+const char* FastBook::kDeleteFrom="4";
+const char* FastBook::kOverlay="5";
+
 FastBook::FastBook(FastInstrument& in_instrument) :
     instrument(in_instrument) {
 }
 
 void FastBook::process_incremental(const MessageAccessor& grp) {
   if(last_seqnum==-1) {
-    backlog.push_back(Message(grp));
+    backlog.push(Message(grp));
     return;
   }
 
   while(!backlog.empty()) {
-    process_entry(backlog.top(),get_string(grp,fields::kIncrementalUpdateAction));
+    process_entry(backlog.front(),get_string(grp,fields::kIncrementalUpdateAction).c_str());
   }
 
   int seq=get_int(grp,fields::kIncrementalSeqnum);
   if(seq<last_seqnum) return;
   last_seqnum=seq;
 
-  process_entry(grp,get_string(grp,fields::kIncrementalUpdateAction));
+  process_entry(grp,get_string(grp,fields::kIncrementalUpdateAction).c_str());
 }
 
 void FastBook::process_snapshot(const MessageAccessor& grp) {
@@ -62,7 +70,7 @@ void FastBook::process_entry(const MessageAccessor& grp,const char* op) {
   string type=get_string(grp,fields::kEntryType);
 
   if(type==kBid) {
-    process_bid(grp.op);
+    process_bid(grp,op);
   } else if(type==kOffer) {
     process_offer(grp,op);
   }
@@ -85,8 +93,7 @@ void FastBook::process_bid(const MessageAccessor& grp,const char* op) {
     //TODO: implement
   } else {
     BOOST_THROW_EXCEPTION(BadFastTagData()
-      <<FastTagName(fields::kIncrementalUpdateAction)
-      <<op);
+      <<FastTagName(fields::kIncrementalUpdateAction));
   }
 }
 
@@ -105,74 +112,69 @@ void FastBook::process_offer(const MessageAccessor& grp,const char* op) {
     //TODO: implement
   } else {
     BOOST_THROW_EXCEPTION(BadFastTagData()
-      <<FastTagName(fields::kIncrementalUpdateAction)
-      <<op);
+      <<FastTagName(fields::kIncrementalUpdateAction));
   }
 }
 
 void FastBook::add_order(EntryQueue& q,const MessageAccessor& grp) {
   q.push_back(shared_ptr<FastOrderEntry>(new FastOrderEntry(grp,*this)));
-  sort(q);
+  sort(q.begin(),q.end());
 }
 
 void FastBook::delete_order(EntryQueue& q,const MessageAccessor& grp) {
   string id=get_string(grp,fields::kOrderID);
   for(EntryQueue::iterator i=q.begin();i!=q.end();++i) {
-    if(i->id()==id) {
+    if((*i)->id()==id) {
       q.erase(i);
       return;
     }
   }
   BOOST_THROW_EXCEPTION(BadFastTagData()
-    <<FastTagName(fields::kOrderID)
-    <<id);
+    <<FastTagName(fields::kOrderID));
 }
 
 void FastBook::update_order(EntryQueue& q,const MessageAccessor& grp) {
   string id=get_string(grp,fields::kOrderID);
   for(EntryQueue::iterator i=q.begin();i!=q.end();++i) {
-    if(i->id()==id) {
-      i->update(grp);
-      sort(q);
+    if((*i)->id()==id) {
+      (*i)->update(grp);
+      sort(q.begin(),q.end());
       return;
     }
   }
   BOOST_THROW_EXCEPTION(BadFastTagData()
-    <<FastTagName(fields::kOrderID)
-    <<id);
+    <<FastTagName(fields::kOrderID));
 }
 
 void FastBook::delete_orders_thru(EntryQueue& q,const MessageAccessor& grp) {
   string id=get_string(grp,fields::kOrderID);
   for(EntryQueue::iterator i=q.begin();i!=q.end();++i) {
     i=q.erase(i);
-    if(i->id()==id) {
+    if((*i)->id()==id) {
       return;
     }
   }
   BOOST_THROW_EXCEPTION(BadFastTagData()
-    <<FastTagName(fields::kOrderID)
-    <<id);
+    <<FastTagName(fields::kOrderID));
 }
 
 void FastBook::delete_orders_from(EntryQueue& q,const MessageAccessor& grp) {
   string id=get_string(grp,fields::kOrderID);
   bool found=false;
   for(EntryQueue::iterator i=q.begin();i!=q.end();++i) {
-    if(i->id()==id) {
+    if((*i)->id()==id) {
       found=true;
     }
     if(found) i=q.erase(i);
   }
   if(!found) {
     BOOST_THROW_EXCEPTION(BadFastTagData()
-    <<FastTagName(fields::kOrderID)
-    <<id);
+    <<FastTagName(fields::kOrderID));
   }
 }
 
 list<weak_ptr<OrderEntry> > FastBook::bids() const {
-  list<OrderEntry> out;
+  list<weak_ptr<OrderEntry> > out;
   for_each(
     bids_queue.begin(),bids_queue.end(),
     bind(&list<weak_ptr<OrderEntry> >::push_back,out,_1));
@@ -180,7 +182,7 @@ list<weak_ptr<OrderEntry> > FastBook::bids() const {
 }
 
 list<weak_ptr<OrderEntry> > FastBook::offers() const {
-  list<OrderEntry> out;
+  list<weak_ptr<OrderEntry> > out;
   for_each(
     offers_queue.begin(),offers_queue.end(),
     bind(&list<weak_ptr<OrderEntry> >::push_back,out,_1));
@@ -195,7 +197,7 @@ weak_ptr<OrderEntry> FastBook::top_offer() const {
   return offers_queue.empty()?weak_ptr<OrderEntry>():weak_ptr<OrderEntry>(offers_queue.front());
 }
 
-size_t FastBook::bid_count() const {
+size_t FastBook::bids_count() const {
   return bids_queue.size();
 }
 
