@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef UDP_QUEUE_H_
-#define UDP_QUEUE_H_ 1
+#ifndef UMDF_DECODER_UDP_QUEUE_H_
+#define UMDF_DECODER_UDP_QUEUE_H_ 1
 
 #include <string>
 #include <map>
@@ -47,4 +47,4 @@ private:
   volatile int data_ready;
 };
 
-#endif // UDP_QUEUE_H_
+#endif // UMDF_DECODER_UDP_QUEUE_H_

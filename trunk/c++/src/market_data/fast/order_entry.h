@@ -4,12 +4,12 @@
   longdesc
 */
 
-#ifndef ORDER_ENTRY_H_
-#define ORDER_ENTRY_H_ 1
+#ifndef MARKET_DATA_FAST_ORDER_ENTRY_H_
+#define MARKET_DATA_FAST_ORDER_ENTRY_H_ 1
 
 #include "market_data/order_entry.h"
 
-#include <quickfast/Messages/MessageAccessor.h>
+#include "quickfast.h"
 
 class FastBook;
 
@@ -46,4 +46,5 @@ private:
   void update_first(const QuickFAST::Messages::MessageAccessor&);
 };
 
-#endif // ORDER_ENTRY_H_
+#endif // MARKET_DATA_FAST_ORDER_ENTRY_H_
+

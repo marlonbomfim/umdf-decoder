@@ -56,3 +56,4 @@ double FastOrderEntry::qty() const {
 ptime FastOrderEntry::date() const {
   return order_date;
 }
+

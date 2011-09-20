@@ -4,19 +4,16 @@
   longdesc
 */
 
-#ifndef FAST_UTIL_H_
-#define FAST_UTIL_H_ 1
+#ifndef MARKET_DATA_FAST_FAST_UTIL_H_
+#define MARKET_DATA_FAST_FAST_UTIL_H_ 1
 
 #include <string>
 
 #include <boost/cstdint.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
 
-#include <quickfast/Common/StringBuffer.h>
-#include <quickfast/Common/Value.h>
-#include <quickfast/Messages/MessageAccessor.h>
-
 #include "fast_errors.h"
+#include "quickfast.h"
 
 inline std::string get_string(
     const QuickFAST::Messages::MessageAccessor& msg,
@@ -24,7 +21,7 @@ inline std::string get_string(
   const QuickFAST::StringBuffer* ptr;
   if(!msg.getString(
       QuickFAST::Messages::FieldIdentity(name),
-      QuickFAST::Value::STRING,
+      QuickFAST::ValueType::ASCII,
       ptr)) {
     BOOST_THROW_EXCEPTION(UnknownFastTag()
       <<FastTagName(name));
@@ -39,7 +36,7 @@ inline boost::int64_t get_int(
   QuickFAST::int64 out;
   if(!msg.getSignedInteger(
       QuickFAST::Messages::FieldIdentity(name),
-      QuickFAST::Value::SIGNEDINTEGER,
+      QuickFAST::ValueType::INT64,
       out)) {
     BOOST_THROW_EXCEPTION(UnknownFastTag()
       <<FastTagName(name));
@@ -54,7 +51,7 @@ inline boost::uint64_t get_uint(
   QuickFAST::uint64 out;
   if(!msg.getUnsignedInteger(
       QuickFAST::Messages::FieldIdentity(name),
-      QuickFAST::Value::UNSIGNEDINTEGER,
+      QuickFAST::ValueType::UINT64,
       out)) {
     BOOST_THROW_EXCEPTION(UnknownFastTag()
       <<FastTagName(name));
@@ -69,7 +66,7 @@ inline double get_double(
   QuickFAST::Decimal out;
   if(!msg.getDecimal(
       QuickFAST::Messages::FieldIdentity(name),
-      QuickFAST::Value::DECIMAL,
+      QuickFAST::ValueType::DECIMAL,
       out)) {
     BOOST_THROW_EXCEPTION(UnknownFastTag()
       <<FastTagName(name));
@@ -97,15 +94,14 @@ inline std::size_t for_each_in_sequence(
     const char* name,
     Callable f) {
   std::size_t len=get_sequence_length(msg,name);
-  const MessageAccessor* cur=0;
-  for(std::size_t i=0,const MessageAccessor* cur=0;i<len;++i) {
+  const QuickFAST::Messages::MessageAccessor* cur=0;
+  for(std::size_t i=0;i<len;++i) {
     if(!msg.getSequenceEntry(
         QuickFAST::Messages::FieldIdentity(name),
         i,
         cur)) {
       BOOST_THROW_EXCEPTION(UnknownFastSequenceEntry()
-        <<FastTagName(name)
-        <<i);
+        <<FastTagName(name));
     }
 
     f(*cur);
@@ -118,5 +114,5 @@ boost::posix_time::ptime bvmf_date_to_posix(boost::int64_t in_date,boost::int64_
 boost::posix_time::ptime bvmf_date_to_posix(boost::int64_t full_date);
 boost::int64_t posix_date_to_bvmf(boost::posix_time::ptime full_date);
 
-#endif // FAST_UTIL_H_
+#endif // MARKET_DATA_FAST_FAST_UTIL_H_
 

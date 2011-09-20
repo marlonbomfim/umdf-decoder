@@ -4,10 +4,12 @@
   longdesc
 */
 
-#ifndef BOOK_H_
-#define BOOK_H_ 1
+#ifndef MARKET_DATA_BOOK_H_
+#define MARKET_DATA_BOOK_H_ 1
 
 #include <boost/weak_ptr.hpp>
+
+#include "order_entry.h"
 
 struct Book {
   virtual std::list<boost::weak_ptr<OrderEntry> > bids() const=0;
@@ -16,9 +18,9 @@ struct Book {
   virtual boost::weak_ptr<OrderEntry> top_bid() const=0;
   virtual boost::weak_ptr<OrderEntry> top_offer() const=0;
 
-  virtual std::size_t bid_count() const=0;
-  virtual std::size_t offer_count() const=0;
+  virtual std::size_t bids_count() const=0;
+  virtual std::size_t offers_count() const=0;
 };
 
-#endif // BOOK_H_
+#endif // MARKET_DATA_BOOK_H_
 

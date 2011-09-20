@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef MARKET_DATA_H_
-#define MARKET_DATA_H_ 1
+#ifndef MARKET_DATA_MARKET_DATA_H_
+#define MARKET_DATA_MARKET_DATA_H_ 1
 
 #include <list>
 #include <string>
@@ -23,5 +23,5 @@ struct MarketData {
   virtual std::size_t count_instruments() const=0;
 };
 
-#endif // MARKET_DATA_H_
+#endif // MARKET_DATA_MARKET_DATA_H_
 

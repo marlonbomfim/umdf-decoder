@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef MESSAGE_H_
-#define MESSAGE_H_ 1
+#ifndef UMDF_DECODER_MESSAGE_H_
+#define UMDF_DECODER_MESSAGE_H_ 1
 
 #include "packet.h"
 
@@ -35,5 +35,5 @@ private:
   std::vector<Packet> packets;
 };
 
-#endif // MESSAGE_H_
+#endif // UMDF_DECODER_MESSAGE_H_
 

@@ -4,8 +4,8 @@
   longdesc
 */
 
-#ifndef INSTRUMENT_H_
-#define INSTRUMENT_H_ 1
+#ifndef MARKET_DATA_INSTRUMENT_H_
+#define MARKET_DATA_INSTRUMENT_H_ 1
 
 #include <string>
 
@@ -22,5 +22,5 @@ struct Instrument {
   virtual Book& book() const=0;
 };
 
-#endif // INSTRUMENT_H_
+#endif // MARKET_DATA_INSTRUMENT_H_
 
