@@ -14,6 +14,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/operators.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <Common/StringBuffer.h>
 #include <Common/Value.h>

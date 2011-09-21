@@ -37,7 +37,7 @@ public:
 
 private:
   typedef std::map<std::string,boost::shared_ptr<FastInstrument> > InstrumentMap;
-  InstrumentMap instruments;
+  InstrumentMap all_instruments;
 
   bool running;
   bool done_reading;
@@ -50,13 +50,15 @@ private:
   boost::shared_ptr<boost::thread> update_thread;
   void update_thread_proc();
 
-  std::string make_hash(std::string id,std::string src);
-  std::string make_hash(const QuickFAST::Messages::MessageAccessor& msg);
+  static std::string make_hash(std::string id,std::string src);
+  static std::string make_hash(const QuickFAST::Messages::MessageAccessor& msg);
 
-  void process(const QuickFAST::Messages::MessageAccessor& msg);
+  void process(boost::shared_ptr<QuickFAST::Messages::Message> msg);
 
-  void process_securitylist_entry(const QuickFAST::Messages::MessageAccessor& msg);
-  void process_incrementals_entry(const QuickFAST::Messages::MessageAccessor& msg);
+  void process_securitylist_entry(const QuickFAST::Messages::MessageAccessor& grp);
+  void process_incrementals_entry(
+    boost::shared_ptr<QuickFAST::Messages::Message> msg_ptr,
+    const QuickFAST::Messages::MessageAccessor& grp);
 
   FastInstrument& new_instrument(const QuickFAST::Messages::MessageAccessor& msg);
 };

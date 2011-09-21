@@ -46,5 +46,9 @@ private:
   void update_first(const QuickFAST::Messages::MessageAccessor&);
 };
 
+inline bool operator<(const FastOrderEntry& a, const FastOrderEntry& b) {
+  return a.pos()<b.pos();
+}
+
 #endif // MARKET_DATA_FAST_ORDER_ENTRY_H_
 

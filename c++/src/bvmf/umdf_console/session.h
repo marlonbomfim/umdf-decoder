@@ -9,8 +9,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <quickfast/Messages/MessageBuilder.h>
-#include <quickfast/Messages/Message.h>
+#include "market_data/fast/quickfast.h"
 
 #include "umdf_decoder/message.h"
 #include "umdf_decoder/aggregator.h"

@@ -11,6 +11,7 @@
 #include <list>
 #include <string>
 #include <queue>
+#include <utility>
 
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
@@ -35,14 +36,21 @@ public:
 
   FastBook(FastInstrument& in_instrument);
 
-  void process_incremental(const QuickFAST::Messages::MessageAccessor& grp);
-  void process_snapshot(const QuickFAST::Messages::MessageAccessor& grp);
+  void process_incremental(
+    boost::shared_ptr<QuickFAST::Messages::Message> msg,
+    const QuickFAST::Messages::MessageAccessor& grp);
+  void process_snapshot(const QuickFAST::Messages::MessageAccessor& msg);
 
 private:
   typedef std::vector<boost::shared_ptr<FastOrderEntry> > EntryQueue;
   EntryQueue bids_queue,offers_queue;
 
-  std::queue<QuickFAST::Messages::FieldSet> backlog;
+  //std::queue<QuickFAST::Messages::FieldSet> backlog;
+  //std::queue<boost::shared_ptr<QuickFAST::Messages::Message> > backlog;
+  typedef std::queue<std::pair<
+    boost::shared_ptr<QuickFAST::Messages::Message>,
+    const QuickFAST::Messages::MessageAccessor*> > BacklogQueue;
+  BacklogQueue backlog;
 
   int last_seqnum;
 
