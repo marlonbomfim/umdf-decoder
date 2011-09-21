@@ -9,7 +9,7 @@
 #include "fast_util.h"
 #include "fast_protocol.h"
 
-using std::string
+using std::string;
 
 using boost::posix_time::ptime;
 
@@ -17,7 +17,7 @@ using QuickFAST::Messages::MessageAccessor;
 
 FastOrderEntry::FastOrderEntry(const MessageAccessor& grp,FastBook& in_book) :
     book(in_book) {
-  process_first(grp);
+  update_first(grp);
   update(grp);
 }
 

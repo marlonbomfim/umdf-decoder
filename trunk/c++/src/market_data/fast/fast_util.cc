@@ -46,10 +46,10 @@ int64_t posix_date_to_bvmf(ptime full_date) {
   date_part+=(d.month()+1)*100;
   date_part+=d.day();
 
-  int64_t time_part=d.hours()*10000000;
-  time_part+=d.minutes()*100000;
-  time_part+=d.seconds()*1000;
-  time_part+=d.milliseconds();
+  int64_t time_part=t.hours()*10000000;
+  time_part+=t.minutes()*100000;
+  time_part+=t.seconds()*1000;
+  time_part+=t.fractional_seconds();
 
   return date_part*1000000000 + time_part;
 }

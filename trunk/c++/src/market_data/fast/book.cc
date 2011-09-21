@@ -18,6 +18,7 @@ using std::vector;
 using std::find_if;
 using std::sort;
 using std::list;
+using std::make_pair;
 
 using boost::bind;
 using boost::shared_ptr;
@@ -39,14 +40,19 @@ FastBook::FastBook(FastInstrument& in_instrument) :
     instrument(in_instrument) {
 }
 
-void FastBook::process_incremental(const MessageAccessor& grp) {
+void FastBook::process_incremental(
+    shared_ptr<Message> msg,
+    const MessageAccessor& grp) {
   if(last_seqnum==-1) {
-    backlog.push(Message(grp));
+    backlog.push(make_pair(msg,&grp));
     return;
   }
 
   while(!backlog.empty()) {
-    process_entry(backlog.front(),get_string(grp,fields::kIncrementalUpdateAction).c_str());
+    process_entry(*(backlog.front().second),
+      get_string(*(backlog.front().second),
+        fields::kIncrementalUpdateAction).c_str());
+    backlog.pop();
   }
 
   int seq=get_int(grp,fields::kIncrementalSeqnum);

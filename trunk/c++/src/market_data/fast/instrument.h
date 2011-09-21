@@ -9,8 +9,11 @@
 
 #include <string>
 
+#include <boost/shared_ptr.hpp>
+
 #include "market_data/instrument.h"
 
+#include "book.h"
 #include "quickfast.h"
 
 class FastInstrument : public Instrument {
@@ -22,12 +25,14 @@ public:
 
   virtual std::string exchange() const { return sec_exchange; }
 
-  virtual Book& book() const { return order_book; }
+  virtual const Book& book() const { return order_book; }
 
-  FastInstrument(QuickFAST::Messages::MessageAccessor& info);
+  FastInstrument(const QuickFAST::Messages::MessageAccessor& info);
 
   void process(const QuickFAST::Messages::MessageAccessor& msg);
-  void process_incremental(const QuickFAST::Messages::MessageAccessor& msg);
+  void process_incremental(
+    boost::shared_ptr<QuickFAST::Messages::Message> msg_ptr,
+    const QuickFAST::Messages::MessageAccessor& msg);
   void process_update(const QuickFAST::Messages::MessageAccessor& msg);
 
 private:

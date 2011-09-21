@@ -19,7 +19,7 @@ struct Instrument {
 
   virtual std::string exchange() const=0;
 
-  virtual Book& book() const=0;
+  virtual const Book& book() const=0;
 };
 
 #endif // MARKET_DATA_INSTRUMENT_H_
