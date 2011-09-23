@@ -8,11 +8,21 @@
 #include <fstream>
 #include <cstdlib>
 
+#include <boost/bind.hpp>
+
+#include "market_data/fast/manager.h"
+
 #include "session.h"
+#include "quickfast.h"
 
 using std::string;
 using std::ifstream;
 using std::atoi;
+
+using boost::bind;
+
+using QuickFAST::Codecs::TemplateRegistryPtr;
+using QuickFAST::Codecs::XMLTemplateParser;
 
 int main(int argc,char** argv) {
 
@@ -20,6 +30,8 @@ int main(int argc,char** argv) {
 
   XMLTemplateParser parser;
   TemplateRegistryPtr templates=parser.parse(fast_template_file);
+
+  FastMarketDataManager market_data;
 
   BvmfSession session(market_data,templates);
 

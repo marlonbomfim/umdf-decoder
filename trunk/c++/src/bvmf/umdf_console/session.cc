@@ -22,7 +22,8 @@ void BvmfSession::on_recv_message(Message msg,Aggregator& source) {
   out_msg.reset(new QuickFAST::Messages::Message(0));
 
   Decoder decoder;
-  decoder.decodeMessage(DataSourceBuffer(tmp_buf,out_msg.total_size()),*this);
+  GenericMessageBuilder builder(*this);
+  decoder.decodeMessage(DataSourceBuffer(tmp_buf,out_msg.total_size()),builder);
 
   delete[] tmp_buf;
 

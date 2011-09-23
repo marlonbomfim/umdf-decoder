@@ -1,11 +1,11 @@
 /** :mode=c++:indentSize=2:noTabs=true:tabSize=2:
-  @brief quickfast wrapper header
+  @brief briefdesc
 
-  Wrapper for all quickfast headers that includes necessary prereqs
+  longdesc
 */
 
-#ifndef MARKET_DATA_FAST_QUICKFAST_H_
-#define MARKET_DATA_FAST_QUICKFAST_H_ 1
+#ifndef QUICKFAST_H_
+#define QUICKFAST_H_ 1
 
 #include <cstring>
 #include <stdexcept>
@@ -22,7 +22,10 @@
 #include <Messages/FieldSet.h>
 #include <Messages/Message.h>
 #include <Messages/MessageBuilder.h>
+#include <Codecs/TemplateRegistry_fwd.h>
 #include <Codecs/TemplateRegistry.h>
+#include <Codecs/XMLTemplateParser.h>
+#include <Codecs/MessageConsumer.h>
+#include <Codecs/GenericMessageBuilder.h>
 
-#endif // MARKET_DATA_FAST_QUICKFAST_H_
-
+#endif // QUICKFAST_H_
