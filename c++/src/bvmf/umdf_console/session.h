@@ -9,30 +9,32 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "quickfast.h"
+
+#include "market_data/fast/manager.h"
 #include "market_data/fast/quickfast.h"
 
 #include "umdf_decoder/message.h"
 #include "umdf_decoder/aggregator.h"
 
-class BvmfSession : public MessageBuilder {
+class BvmfSession : public QuickFAST::Codecs::MessageConsumer {
 public:
-  BvmfSession::BvmfSession(
+  BvmfSession(
       FastMarketDataManager& out,
-      TemplateRegistryPtr in_registry) :
+      QuickFAST::Codecs::TemplateRegistryPtr in_registry) :
     target(out),registry(in_registry) {}
 
-  virtual void addField(
-    const QuickFast::Messages::FieldIdentityCPtr& identity,
-    const QuickFast::Messages::FieldCPtr& value) {
-    out_msg->addField(identity,value);
-  }
+  virtual bool consumeMessage(QuickFAST::Messages::Message& msg);
+
+  virtual void decodingStarted() {}
+  virtual void decodingStopped() {}
 
   void on_recv_message(Message msg,Aggregator& source);
 
 private:
   boost::shared_ptr<QuickFAST::Messages::Message> out_msg;
   FastMarketDataManager& target;
-  TemplateRegistryPtr registry;
+  QuickFAST::Codecs::TemplateRegistryPtr registry;
 };
 
 #endif // SESSION_H_
