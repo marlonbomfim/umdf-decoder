@@ -9,58 +9,58 @@
 
 namespace messages {
 
-const char* kSequenceReset="4";
-const char* kHeartbeat="0";
+extern const char* kSequenceReset;
+extern const char* kHeartbeat;
 
-const char* kSecurityList="y";
+extern const char* kSecurityList;
 
-const char* kIncrementals="X";
-const char* kSnapshot="W";
-const char* kSecurityStatus="f";
+extern const char* kIncrementals;
+extern const char* kSnapshot;
+extern const char* kSecurityStatus;
 
-const char* kNews="B";
+extern const char* kNews;
 
 } // end namespace messages
 
 namespace fields {
 
 // header
-const char* kMsgType="MsgType";
-const char* kSeqnum="MsgSeqNum";
+extern const char* kMsgType;
+extern const char* kSeqnum;
 
 // instrument identification block
-const char* kSecurityID="SecurityID";
-const char* kSecuritySource="SecurityIDSource";
-const char* kSecurityExchg="SecurityExchange";
+extern const char* kSecurityID;
+extern const char* kSecuritySource;
+extern const char* kSecurityExchg;
 
 // sequence reset
-const char* kNewSeqnum="NewSeqNo";
+extern const char* kNewSeqnum;
 
 // security list
-const char* kSecurityGroup="RelatedSym";
-const char* kNumSecurities="NoRelatedSym";
-const char* kSymbol="Symbol";
-const char* kUpdateAction="SecurityUpdateAction";
+extern const char* kSecurityGroup;
+extern const char* kNumSecurities;
+extern const char* kSymbol;
+extern const char* kUpdateAction;
 
 // incrementals
-const char* kIncrementalSeqnum="RptSeq";
-const char* kIncrementalUpdateAction="MDUpdateAction";
+extern const char* kIncrementalSeqnum;
+extern const char* kIncrementalUpdateAction;
 
 // snapshot
-const char* kSnapshotSeqnum="LastMsgSeqNumProcessed";
+extern const char* kSnapshotSeqnum;
 
 // snapshot and incrementals
-const char* kEntryType="MDEntryType";
-const char* kTradeDate="TradeDate";
-const char* kEntriesGroup="MDEntries";
-const char* kPrice="MDEntryPx";
-const char* kQuantity="MDEntrySize";
-const char* kDate="MDEntryDate";
-const char* kTime="MDEntryTime";
-const char* kOrderID="OrderID";
-const char* kBuyer="MDEntryBuyer";
-const char* kSeller="MDEntrySeller";
-const char* kPos="MDEntryPositionNo";
+extern const char* kEntryType;
+extern const char* kTradeDate;
+extern const char* kEntriesGroup;
+extern const char* kPrice;
+extern const char* kQuantity;
+extern const char* kDate;
+extern const char* kTime;
+extern const char* kOrderID;
+extern const char* kBuyer;
+extern const char* kSeller;
+extern const char* kPos;
 
 } // end namespace fields
 

@@ -13,6 +13,7 @@ set(OpenUMDF_CC_MarketData_FAST_SOURCES
   "instrument.cc"
   "manager.cc"
   "order_entry.cc"
+  "fast_protocol.cc"
   )
 
 include_directories(SYSTEM ${QuickFAST_PATH})
