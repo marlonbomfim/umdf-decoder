@@ -19,7 +19,8 @@ struct OrderEntry {
   virtual double price() const=0;
   virtual double qty() const=0;
 
-  virtual std::string broker() const=0;
+  virtual std::string buyer() const=0;
+  virtual std::string seller() const=0;
 
   virtual boost::posix_time::ptime date() const=0;
 };

@@ -8,28 +8,30 @@
 
 #include <iostream>
 
-#include <quickfast/Codecs/Decoder.h>
-#include <quickfast/Codecs/DataSourceBuffer.h>
+#include <boost/scoped_array.hpp>
 
 using std::string;
 using std::cout;
 using std::endl;
+
+using boost::scoped_array;
 
 using QuickFAST::Codecs::Decoder;
 using QuickFAST::Codecs::Context;
 using QuickFAST::Messages::MessageBuilder;
 using QuickFAST::Messages::FieldIdentityCPtr;
 using QuickFAST::Messages::FieldCPtr;
+using QuickFAST::Codecs::GenericMessageBuilder;
+using QuickFAST::Codecs::DataSourceBuffer;
 
 void BvmfSession::on_recv_message(Message msg,Aggregator& source) {
-  void* tmp_buf=new char[msg.total_size()];
-  msg.read(tmp_buf,0,msg.total_size());
+  scoped_array<unsigned char> tmp_buf(new unsigned char[msg.size()]);
+  msg.read(tmp_buf.get(),0,msg.size());
 
-  Decoder decoder;
+  Decoder decoder(registry);
   GenericMessageBuilder builder(*this);
-  decoder.decodeMessage(DataSourceBuffer(tmp_buf,out_msg.total_size()),builder);
-
-  delete[] tmp_buf;
+  DataSourceBuffer tmp_buf2(tmp_buf.get(),msg.size());
+  decoder.decodeMessage(tmp_buf2,builder);
 }
 
 bool BvmfSession::consumeMessage(QuickFAST::Messages::Message& msg) {

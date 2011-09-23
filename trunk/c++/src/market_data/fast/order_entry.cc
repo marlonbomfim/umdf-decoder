@@ -57,3 +57,11 @@ ptime FastOrderEntry::date() const {
   return order_date;
 }
 
+string FastOrderEntry::buyer() const {
+  return buy_broker;
+}
+
+string FastOrderEntry::seller() const {
+  return sell_broker;
+}
+
