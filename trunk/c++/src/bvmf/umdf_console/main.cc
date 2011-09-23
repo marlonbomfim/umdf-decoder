@@ -39,7 +39,7 @@ int main(int argc,char** argv) {
   int port=atoi(argv[3]);
 
   Aggregator aggregator;
-  aggregator.add_listener(bind(&BvmfSession::on_recv_message,session));
+  aggregator.add_listener(bind(&BvmfSession::on_recv_message,session,_1,_2));
   UdpQueue q(ip,port);
 
   aggregator.start(q);

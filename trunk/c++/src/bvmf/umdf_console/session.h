@@ -29,6 +29,11 @@ public:
   virtual void decodingStarted() {}
   virtual void decodingStopped() {}
 
+  virtual bool wantLog(unsigned short) { return true; }
+  virtual bool logMessage(unsigned short,const std::string& msg);
+  virtual bool reportDecodingError(const std::string& msg);
+  virtual bool reportCommunicationError(const std::string& msg);
+
   void on_recv_message(Message msg,Aggregator& source);
 
 private:
