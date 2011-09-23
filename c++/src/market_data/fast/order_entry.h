@@ -22,7 +22,8 @@ public:
   virtual double price() const;
   virtual double qty() const;
 
-  virtual std::string broker() const;
+  virtual std::string buyer() const;
+  virtual std::string seller() const;
 
   virtual boost::posix_time::ptime date() const;
 

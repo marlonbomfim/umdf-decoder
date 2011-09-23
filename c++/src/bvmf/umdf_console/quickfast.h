@@ -15,6 +15,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/operators.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/scoped_array.hpp>
 
 #include <Common/StringBuffer.h>
 #include <Common/Value.h>
@@ -27,5 +29,7 @@
 #include <Codecs/XMLTemplateParser.h>
 #include <Codecs/MessageConsumer.h>
 #include <Codecs/GenericMessageBuilder.h>
+#include <Codecs/Decoder.h>
+#include <Codecs/DataSourceBuffer.h>
 
 #endif // QUICKFAST_H_
