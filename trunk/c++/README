@@ -1,0 +1,25 @@
+OpenUMDF/C++
+--------------
+
+- Building the projects
+
+All the projects depend on up-to-date (at least 1.4.7) Boost libraries,
+specificially Boost.Thread, Boost.Filesystem, and Boost.System will have
+to be installed.  If you have installed Boost to a fairly standard place
+(/usr/local or something), find_package() should be able to find it, otherwise
+you might need to do some extra cmake setup (see the CMake documentation on
+find_package).
+
+market_data-fast and bvmf_console both require the QuickFAST library to do the
+actual FAST decoding.  Once you have this library installed, you'll need to
+change the QuickFAST_PATH variable (see the appropriate CMakeLists.txt file)
+to point to the correct path of the quickfast src folder.
+
+- Things currently unimplemented
+
+- Of the types of market data that can be sent, only Bids and Offers are
+currently implemented
+- Most of the extra data sent in a SecurityList message is ignored
+- The FIX Replay stream connection is not implemented
+- News and SecurityStatus messages are not implemented
+
