@@ -2,7 +2,8 @@ package com.lasalletech.market_data.fast;
 
 public class Fields {
 	// header
-	public static final String MSGTYPE="MsgType";
+	//public static final String MSGTYPE="MsgType";
+    public static final int MSGTYPE=35;
 	public static final String MSGSEQNUM="MsgSeqNum";
 	
 	// instrument identification block
