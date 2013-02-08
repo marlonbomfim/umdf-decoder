@@ -3,7 +3,7 @@ package com.lasalletech.market_data.fast;
 public class Fields {
 	// header
 	//public static final String MSGTYPE="MsgType";
-    public static final int MSGTYPE=35;
+    public static final String MSGTYPE="35";
 	public static final String MSGSEQNUM="MsgSeqNum";
 	
 	// instrument identification block
@@ -15,7 +15,7 @@ public class Fields {
 	public static final String NEWSEQNO="NewSeqNo";
 
 	// security list
-	public static final String RELATEDSYM="RelatedSym";
+	public static final String RELATEDSYM="RelatedSymbols";
 	public static final String NORELATEDSYM="NoRelatedSym";
 	public static final String SYMBOL="Symbol";
 	public static final String SECURITYUPDATEACTION="SecurityUpdateAction";

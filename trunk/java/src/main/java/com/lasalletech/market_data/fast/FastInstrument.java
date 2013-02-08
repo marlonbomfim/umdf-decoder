@@ -10,7 +10,7 @@ import com.lasalletech.market_data.fast.error.UnsupportedMessageType;
 
 public class FastInstrument implements Instrument {
 	
-	private String debugName;
+	private final String debugName;
 
 	public FastInstrument(GroupValue grp,FastInstrumentManager mgr)
 			throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
@@ -57,7 +57,7 @@ public class FastInstrument implements Instrument {
 	}
 
 	public void process(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		String type=FastUtil.getString(grp, Fields.MSGTYPE);
+		String type=FastUtil.getStringById(grp, Fields.MSGTYPE);
 		if(type.equals(Messages.SECURITYSTATUS)) {
 			//TODO: implement
 		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
@@ -111,11 +111,11 @@ public class FastInstrument implements Instrument {
 	//private long testLastSeqnum=-1;
 	//private String testLastMsg=new String();
 
-	private String id;
-	private String source;
-	private String exchange;
+	private final String id;
+	private final String source;
+	private final String exchange;
 	private String symbol="";
 	
-	private FastOrderBook snapshotBook;
-	private FastOrderBook incrementalBook;
+	private final FastOrderBook snapshotBook;
+	private final FastOrderBook incrementalBook;
 }

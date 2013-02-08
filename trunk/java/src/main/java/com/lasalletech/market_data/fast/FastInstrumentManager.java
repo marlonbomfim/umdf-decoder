@@ -39,7 +39,7 @@ public class FastInstrumentManager implements MarketData {
 		return instruments.get(makeHash(id,src));
 	}
 	
-	private Map<String,FastInstrument> instruments=new ConcurrentHashMap<String,FastInstrument>();
+	private final Map<String,FastInstrument> instruments=new ConcurrentHashMap<String,FastInstrument>();
 
 	public void onMessage(GroupValue msg) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
 		synchronized(updates) {
@@ -80,11 +80,11 @@ public class FastInstrumentManager implements MarketData {
 		}
 	}
 	
-	private Queue<GroupValue> updates=new LinkedList<GroupValue>();
-	private Semaphore updateSem=new Semaphore(0);
+	private final Queue<GroupValue> updates=new LinkedList<GroupValue>();
+	private final Semaphore updateSem=new Semaphore(0);
 	
 	private void processMsg(GroupValue msg) throws FieldNotFound, InvalidFieldValue, UnsupportedMessageType {
-		String type=FastUtil.getString(msg, Fields.MSGTYPE);
+		String type=FastUtil.getStringById(msg, Fields.MSGTYPE);
 		
 		if(type.equals(Messages.SECURITYLIST)) {
 			processInstrumentUpdates(msg);
@@ -115,7 +115,7 @@ public class FastInstrumentManager implements MarketData {
 		for(GroupValue grp:FastUtil.getSequence(msg,Fields.RELATEDSYM)) {
 			String code=makeHash(grp);
 			if(grp.isDefined(Fields.SECURITYUPDATEACTION)) {
-				char op=(char)grp.getByte(Fields.SECURITYUPDATEACTION);
+				char op=grp.getString(Fields.SECURITYUPDATEACTION).charAt(0);
 				if(op=='A') {
 					newInstrument(code,grp).processUpdate(grp);
 				} else if(op=='M') {
