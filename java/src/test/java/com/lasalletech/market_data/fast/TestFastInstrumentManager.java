@@ -47,7 +47,7 @@ public class TestFastInstrumentManager implements MarketData {
 		return null;
 	}
 	
-	private Map<String,TestFastInstrument> instruments=new ConcurrentHashMap<String,TestFastInstrument>();
+	private final Map<String,TestFastInstrument> instruments=new ConcurrentHashMap<String,TestFastInstrument>();
 
 	public void onMessage(GroupValue msg) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
 		synchronized(updates) {
@@ -88,11 +88,11 @@ public class TestFastInstrumentManager implements MarketData {
 		}
 	}
 	
-	private Queue<GroupValue> updates=new LinkedList<GroupValue>();
-	private Semaphore updateSem=new Semaphore(0);
+	private final Queue<GroupValue> updates=new LinkedList<GroupValue>();
+	private final Semaphore updateSem=new Semaphore(0);
 	
 	private void processMsg(GroupValue msg) throws FieldNotFound, InvalidFieldValue, UnsupportedMessageType {
-		String type=FastUtil.getString(msg, Fields.MSGTYPE);
+		String type=FastUtil.getStringById(msg, Fields.MSGTYPE);
 		
 		if(type.equals(Messages.SECURITYLIST)) {
 			processInstrumentUpdates(msg);

@@ -13,8 +13,8 @@ import com.lasalletech.umdf.decoder.UmdfMessageAggregator;
 import com.lasalletech.umdf.decoder.UmdfMessageListener;
 
 public class OutputListener implements UmdfMessageListener {
-	private Context context;
-	private String debugName;
+	private final Context context;
+	private final String debugName;
 	public OutputListener(Context ctx,String myName) {
 		context=ctx;
 		debugName=myName;
@@ -28,7 +28,7 @@ public class OutputListener implements UmdfMessageListener {
 		try {
 		
 			// deal with session-layer messages
-			String type=FastUtil.getString(msg, Fields.MSGTYPE);
+			String type=FastUtil.getStringById(msg, Fields.MSGTYPE);
 			if(type.equals(Messages.SEQUENCERESET)) {
 				source.reset(FastUtil.getLong(msg, Fields.NEWSEQNO));
 			} else if(type.equals(Messages.HEARTBEAT)) {

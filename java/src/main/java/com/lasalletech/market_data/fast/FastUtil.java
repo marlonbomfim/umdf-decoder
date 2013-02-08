@@ -12,6 +12,14 @@ import org.openfast.template.Sequence;
 import com.lasalletech.market_data.fast.error.FieldNotFound;
 
 public class FastUtil {
+    public static String getStringById(GroupValue grp, String tag) throws FieldNotFound {
+        Field field = grp.getGroup().getFieldById(tag);
+        if (field == null) {
+            throw new FieldNotFound(tag);
+        }
+        return grp.getString(field.getName());
+    }
+    
     public static String getString(GroupValue grp, int index) throws FieldNotFound {
         if (!grp.isDefined(index)) {
             throw new FieldNotFound(index);

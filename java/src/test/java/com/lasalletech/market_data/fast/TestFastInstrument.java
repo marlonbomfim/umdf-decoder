@@ -54,7 +54,7 @@ public class TestFastInstrument implements Instrument {
 	}
 
 	public void process(GroupValue grp) throws UnsupportedMessageType, FieldNotFound, InvalidFieldValue {
-		String type=FastUtil.getString(grp, Fields.MSGTYPE);
+		String type=FastUtil.getStringById(grp, Fields.MSGTYPE);
 		if(type.equals(Messages.SECURITYSTATUS)) {
 			//TODO: implement
 		} else if(type.equals(Messages.MARKETDATASNAPSHOTFULLREFRESH)) {
@@ -92,12 +92,12 @@ public class TestFastInstrument implements Instrument {
 		}
 	}
 
-	private String id;
-	private String source;
-	private String exchange;
+	private final String id;
+	private final String source;
+	private final String exchange;
 	private String symbol="";
 	
-	private TestFastOrderBook snapshotBook;
-	private TestFastOrderBook incrementalBook;
+	private final TestFastOrderBook snapshotBook;
+	private final TestFastOrderBook incrementalBook;
 
 }
